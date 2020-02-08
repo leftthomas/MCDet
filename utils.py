@@ -1,10 +1,10 @@
+import math
 import os
 import random
+from itertools import product
 
-import math
 import torch
 from PIL import Image
-from itertools import product
 from torch.utils.data import Dataset
 from torchvision import transforms
 
@@ -61,11 +61,12 @@ def create_id(meta_class_size, num_class, ensemble_size):
 
 class ImageReader(Dataset):
 
-    def __init__(self, data_name, data_type, crop_type, ensemble_size=None, meta_class_size=None, load_ids=False):
+    def __init__(self, data_path, data_name, data_type, crop_type, ensemble_size=None, meta_class_size=None,
+                 load_ids=False):
         if crop_type == 'cropped' and data_name not in ['car', 'cub']:
             raise NotImplementedError('cropped data only works for car or cub dataset')
 
-        data_dict = torch.load('data/{}/{}_data_dicts.pth'.format(data_name, crop_type))[
+        data_dict = torch.load('{}/{}/{}_data_dicts.pth'.format(data_path, data_name, crop_type))[
             'train' if data_type == 'train_ext' else data_type]
         class_to_idx = dict(zip(sorted(data_dict), range(len(data_dict))))
         normalize = transforms.Normalize(rgb_mean[data_name], rgb_std[data_name])

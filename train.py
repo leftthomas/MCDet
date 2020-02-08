@@ -1,5 +1,4 @@
 import argparse
-import os
 
 import pandas as pd
 import torch
@@ -61,6 +60,7 @@ def eval(net, recalls):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train Image Retrieval Model')
+    parser.add_argument('--data_path', default='/home/data', type=str, help='datasets path')
     parser.add_argument('--data_name', default='car', type=str, choices=['car', 'cub', 'sop', 'isc'],
                         help='dataset name')
     parser.add_argument('--crop_type', default='uncropped', type=str, choices=['uncropped', 'cropped'],
@@ -76,28 +76,26 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    DATA_NAME, RECALLS, BATCH_SIZE, NUM_EPOCHS = opt.data_name, opt.recalls, opt.batch_size, opt.num_epochs
-    ENSEMBLE_SIZE, META_CLASS_SIZE, CROP_TYPE = opt.ensemble_size, opt.meta_class_size, opt.crop_type
-    MODEL_TYPE, LOAD_IDS = opt.model_type, opt.load_ids
+    DATA_PATH, DATA_NAME, CROP_TYPE, RECALLS = opt.data_path, opt.data_name, opt.crop_type, opt.recalls
+    MODEL_TYPE, LOAD_IDS, BATCH_SIZE = opt.model_type, opt.load_ids, opt.batch_size
+    NUM_EPOCHS, ENSEMBLE_SIZE, META_CLASS_SIZE = opt.num_epochs, opt.ensemble_size, opt.meta_class_size
     save_name_pre = '{}_{}_{}_{}_{}'.format(DATA_NAME, CROP_TYPE, MODEL_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE)
     recall_ids = [int(k) for k in RECALLS.split(',')]
 
     results = {'train_loss': [], 'train_accuracy': []}
     for index, id in enumerate(recall_ids):
         results['test_recall@{}'.format(recall_ids[index])] = []
-    if not os.path.exists('results'):
-        os.mkdir('results')
 
-    train_data_set = ImageReader(DATA_NAME, 'train', CROP_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE, LOAD_IDS)
+    train_data_set = ImageReader(DATA_PATH, DATA_NAME, 'train', CROP_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE, LOAD_IDS)
     train_data_loader = DataLoader(train_data_set, BATCH_SIZE, shuffle=True, num_workers=8)
 
-    train_ext_data_set = ImageReader(DATA_NAME, 'train_ext', CROP_TYPE)
+    train_ext_data_set = ImageReader(DATA_PATH, DATA_NAME, 'train_ext', CROP_TYPE)
     train_ext_data_loader = DataLoader(train_ext_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
-    test_data_set = ImageReader(DATA_NAME, 'query' if DATA_NAME == 'isc' else 'test', CROP_TYPE)
+    test_data_set = ImageReader(DATA_PATH, DATA_NAME, 'query' if DATA_NAME == 'isc' else 'test', CROP_TYPE)
     test_data_loader = DataLoader(test_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
     eval_dict = {'train': {'data_loader': train_ext_data_loader}, 'test': {'data_loader': test_data_loader}}
     if DATA_NAME == 'isc':
-        gallery_data_set = ImageReader(DATA_NAME, 'gallery', CROP_TYPE)
+        gallery_data_set = ImageReader(DATA_PATH, DATA_NAME, 'gallery', CROP_TYPE)
         gallery_data_loader = DataLoader(gallery_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
         eval_dict['gallery'] = {'data_loader': gallery_data_loader}
 
