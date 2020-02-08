@@ -1,5 +1,5 @@
-# REIR
-A PyTorch implementation of REIR based on the paper [Light-weighted Randomized Ensembles with Clustering for Image Retrieval]().
+# LREC
+A PyTorch implementation of LREC based on the paper [Light-weighted Randomized Ensembles with Clustering for Image Retrieval]().
 
 <div align="center">
   <img src="data/architecture.png"/>
