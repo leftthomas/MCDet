@@ -17,8 +17,8 @@ conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
 [Standard Online Products](http://cvgl.stanford.edu/projects/lifted_struct/) and 
 [In-shop Clothes](http://mmlab.ie.cuhk.edu.hk/projects/DeepFashion/InShopRetrieval.html) are used in this repo.
 
-You should download these datasets by yourself, and extract them into `data` directory, make sure the dir names are 
-`car`, `cub`, `sop` and `isc`. Then run `data_utils.py` to preprocess them.
+You should download these datasets by yourself, and extract them into `$data_path` directory, make sure the dir names are 
+`car`, `cub`, `sop` and `isc`. Then run `python data_utils.py --data_path $data_path` to preprocess them.
 
 ## Usage
 ### Train Model

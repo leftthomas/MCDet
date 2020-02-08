@@ -18,7 +18,7 @@ class Model(nn.Module):
 
         # common features
         common_module_names = ['conv1', 'bn1', 'relu', 'maxpool', 'layer1']
-        self.common_extractor, basic_model = [], backbone()
+        self.common_extractor, basic_model = [], backbone(True)
         for name, module in basic_model.named_children():
             if name in common_module_names:
                 self.common_extractor.append(module)
@@ -29,13 +29,13 @@ class Model(nn.Module):
         # individual features
         self.individual_extractor, individual_module_names = [], ['layer2', 'layer3', 'layer4']
         for i in range(ensemble_size):
-            heads, basic_model = [], backbone()
+            heads, basic_model = [], backbone(True)
             for name, module in basic_model.named_children():
                 if name in individual_module_names:
                     heads.append(module)
             heads = nn.Sequential(*heads)
             self.individual_extractor.append(heads)
-        self.individual_extractor = nn.ModuleList(heads)
+        self.individual_extractor = nn.ModuleList(self.individual_extractor)
         print("# trainable individual feature parameters:",
               sum(param.numel() if param.requires_grad else 0 for param in
                   self.individual_extractor.parameters()) // ensemble_size)
