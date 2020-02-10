@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from thop import profile, clever_format
+from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from tqdm import tqdm
@@ -48,7 +49,7 @@ def train_val(net, data_loader, train_optimizer):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train Backbone')
     parser.add_argument('--data_path', type=str, default='/home/data/imagenet/ILSVRC2012', help='Path to dataset')
-    parser.add_argument('--batch_size', type=int, default=512, help='Number of images in each mini-batch')
+    parser.add_argument('--batch_size', type=int, default=256, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', type=int, default=100, help='Number of sweeps over the dataset to train')
 
     args = parser.parse_args()
@@ -62,7 +63,8 @@ if __name__ == '__main__':
     flops, params = profile(model, inputs=(torch.randn(1, 3, 224, 224).cuda(),))
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
+    lr_scheduler = MultiStepLR(optimizer, milestones=[int(epochs * 0.3), int(epochs * 0.6)], gamma=0.1)
     loss_criterion = nn.CrossEntropyLoss()
     results = {'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': []}
 
