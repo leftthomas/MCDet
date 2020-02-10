@@ -56,7 +56,7 @@ if __name__ == '__main__':
     train_data = datasets.ImageFolder(root='{}/{}'.format(data_path, 'train'), transform=utils.train_transform)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8)
     val_data = datasets.ImageFolder(root='{}/{}'.format(data_path, 'val'), transform=utils.val_transform)
-    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=True, num_workers=8)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=8)
 
     model = FastSCNN(in_channels=3, num_classes=1000).cuda()
     flops, params = profile(model, inputs=(torch.randn(1, 3, 224, 224).cuda(),))
