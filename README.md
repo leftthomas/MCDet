@@ -11,6 +11,10 @@ A PyTorch implementation of LREC based on the paper [Light-weighted Randomized E
 ```
 conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
 ```
+- thop
+```
+pip install thop
+```
 
 ## Datasets
 [CARS196](http://ai.stanford.edu/~jkrause/cars/car_dataset.html), [CUB200-2011](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html), 

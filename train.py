@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 import torch
 import torch.nn.functional as F
+from thop import profile, clever_format
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.optim.lr_scheduler import MultiStepLR
@@ -36,15 +37,17 @@ def train(net, optim):
 def eval(net, recalls):
     net.eval()
     with torch.no_grad():
+        # obtain feature vectors for all data
         for key in eval_dict.keys():
             eval_dict[key]['features'] = []
-            for inputs, labels in eval_dict[key]['data_loader']:
+            for inputs, labels in tqdm(eval_dict[key]['data_loader'], desc='processing {} data'.format(key)):
                 inputs, labels = inputs.cuda(), labels.cuda()
                 out = net(inputs)
                 out = F.normalize(out, dim=-1)
                 eval_dict[key]['features'].append(out.cpu())
             eval_dict[key]['features'] = torch.cat(eval_dict[key]['features'], dim=0)
 
+    # compute recall metric
     if DATA_NAME == 'isc':
         acc_list = recall(eval_dict['test']['features'], test_data_set.labels, recalls,
                           eval_dict['gallery']['features'], gallery_data_set.labels)
@@ -75,7 +78,7 @@ if __name__ == '__main__':
     parser.add_argument('--meta_class_size', default=12, type=int, help='meta class size')
 
     opt = parser.parse_args()
-
+    # args parse
     DATA_PATH, DATA_NAME, CROP_TYPE, RECALLS = opt.data_path, opt.data_name, opt.crop_type, opt.recalls
     MODEL_TYPE, LOAD_IDS, BATCH_SIZE = opt.model_type, opt.load_ids, opt.batch_size
     NUM_EPOCHS, ENSEMBLE_SIZE, META_CLASS_SIZE = opt.num_epochs, opt.ensemble_size, opt.meta_class_size
@@ -86,9 +89,9 @@ if __name__ == '__main__':
     for index, id in enumerate(recall_ids):
         results['test_recall@{}'.format(recall_ids[index])] = []
 
+    # dataset loader
     train_data_set = ImageReader(DATA_PATH, DATA_NAME, 'train', CROP_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE, LOAD_IDS)
     train_data_loader = DataLoader(train_data_set, BATCH_SIZE, shuffle=True, num_workers=8)
-
     train_ext_data_set = ImageReader(DATA_PATH, DATA_NAME, 'train_ext', CROP_TYPE)
     train_ext_data_loader = DataLoader(train_ext_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
     test_data_set = ImageReader(DATA_PATH, DATA_NAME, 'query' if DATA_NAME == 'isc' else 'test', CROP_TYPE)
@@ -99,8 +102,11 @@ if __name__ == '__main__':
         gallery_data_loader = DataLoader(gallery_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
         eval_dict['gallery'] = {'data_loader': gallery_data_loader}
 
+    # model setup, model profile, optimizer config and loss definition
     model = Model(ENSEMBLE_SIZE, META_CLASS_SIZE, MODEL_TYPE).cuda()
-    print("# trainable parameters:", sum(param.numel() if param.requires_grad else 0 for param in model.parameters()))
+    flops, params = profile(model, inputs=(torch.randn(1, 3, 256, 256).cuda(),))
+    flops, params = clever_format([flops, params])
+    print('# Model Params: {} FLOPs: {}'.format(params, flops))
     optimizer = Adam(model.parameters(), lr=1e-4)
     lr_scheduler = MultiStepLR(optimizer, milestones=[int(NUM_EPOCHS * 0.5), int(NUM_EPOCHS * 0.7)], gamma=0.1)
     cel_criterion = CrossEntropyLoss()
