@@ -69,10 +69,8 @@ if __name__ == '__main__':
     parser.add_argument('--crop_type', default='uncropped', type=str, choices=['uncropped', 'cropped'],
                         help='crop data or not, it only works for car or cub dataset')
     parser.add_argument('--recalls', default='1,2,4,8', type=str, help='selected recall')
-    parser.add_argument('--model_type', default='resnet18', type=str,
-                        choices=['resnet18', 'resnet34', 'resnet50', 'resnext50_32x4d'], help='backbone type')
     parser.add_argument('--load_ids', action='store_true', help='load already generated ids or not')
-    parser.add_argument('--batch_size', default=10, type=int, help='train batch size')
+    parser.add_argument('--batch_size', default=32, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=20, type=int, help='train epoch number')
     parser.add_argument('--ensemble_size', default=48, type=int, help='ensemble model size')
     parser.add_argument('--meta_class_size', default=12, type=int, help='meta class size')
@@ -80,9 +78,9 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     # args parse
     DATA_PATH, DATA_NAME, CROP_TYPE, RECALLS = opt.data_path, opt.data_name, opt.crop_type, opt.recalls
-    MODEL_TYPE, LOAD_IDS, BATCH_SIZE = opt.model_type, opt.load_ids, opt.batch_size
-    NUM_EPOCHS, ENSEMBLE_SIZE, META_CLASS_SIZE = opt.num_epochs, opt.ensemble_size, opt.meta_class_size
-    save_name_pre = '{}_{}_{}_{}_{}'.format(DATA_NAME, CROP_TYPE, MODEL_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE)
+    LOAD_IDS, BATCH_SIZE, NUM_EPOCHS = opt.load_ids, opt.batch_size, opt.num_epochs
+    ENSEMBLE_SIZE, META_CLASS_SIZE = opt.ensemble_size, opt.meta_class_size
+    save_name_pre = '{}_{}_{}_{}'.format(DATA_NAME, CROP_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE)
     recall_ids = [int(k) for k in RECALLS.split(',')]
 
     results = {'train_loss': [], 'train_accuracy': []}
@@ -103,7 +101,7 @@ if __name__ == '__main__':
         eval_dict['gallery'] = {'data_loader': gallery_data_loader}
 
     # model setup, model profile, optimizer config and loss definition
-    model = Model(ENSEMBLE_SIZE, META_CLASS_SIZE, MODEL_TYPE).cuda()
+    model = Model(ENSEMBLE_SIZE, META_CLASS_SIZE).cuda()
     flops, params = profile(model, inputs=(torch.randn(1, 3, 256, 256).cuda(),))
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
