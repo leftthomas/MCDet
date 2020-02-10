@@ -48,7 +48,7 @@ def train_val(net, data_loader, train_optimizer):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train Backbone')
     parser.add_argument('--data_path', type=str, default='/home/data/imagenet/ILSVRC2012', help='Path to dataset')
-    parser.add_argument('--batch_size', type=int, default=256, help='Number of images in each mini-batch')
+    parser.add_argument('--batch_size', type=int, default=512, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', type=int, default=100, help='Number of sweeps over the dataset to train')
 
     args = parser.parse_args()
