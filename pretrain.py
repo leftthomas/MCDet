@@ -22,12 +22,11 @@ def train_val(net, data_loader, train_optimizer):
     is_train = train_optimizer is not None
     net.train() if is_train else net.eval()
 
-    total_loss, total_correct, total_num, data_bar = 0.0, 0.0, 0, tqdm(data_loader)
+    total_loss, total_correct_1, total_correct_5, total_num, data_bar = 0.0, 0.0, 0.0, 0, tqdm(data_loader)
     with (torch.enable_grad() if is_train else torch.no_grad()):
         for data, target in data_bar:
             data, target = data.cuda(), target.cuda()
             out = net(data)
-            prediction = torch.argmax(out, dim=-1)
             loss = loss_criterion(out, target)
 
             if is_train:
@@ -37,13 +36,15 @@ def train_val(net, data_loader, train_optimizer):
 
             total_num += data.size(0)
             total_loss += loss.item() * data.size(0)
-            total_correct += torch.sum(prediction == target).item()
+            prediction = torch.argsort(out, dim=-1, descending=True)
+            total_correct_1 += torch.sum((prediction[:, 0:1] == target.unsqueeze(dim=-1)).any(dim=-1).float()).item()
+            total_correct_5 += torch.sum((prediction[:, 0:5] == target.unsqueeze(dim=-1)).any(dim=-1).float()).item()
 
-            data_bar.set_description('{} Epoch: [{}/{}] Loss: {:.4f} ACC: {:.2f}%'
+            data_bar.set_description('{} Epoch: [{}/{}] Loss: {:.4f} ACC@1: {:.2f}% ACC@5: {:.2f}%'
                                      .format('Train' if is_train else 'Val', epoch, epochs, total_loss / total_num,
-                                             total_correct / total_num * 100))
+                                             total_correct_1 / total_num * 100, total_correct_5 / total_num * 100))
 
-    return total_loss / total_num, total_correct / total_num * 100
+    return total_loss / total_num, total_correct_1 / total_num * 100, total_correct_5 / total_num * 100
 
 
 if __name__ == '__main__':
@@ -66,19 +67,21 @@ if __name__ == '__main__':
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
     lr_scheduler = MultiStepLR(optimizer, milestones=[int(epochs * 0.3), int(epochs * 0.6)], gamma=0.1)
     loss_criterion = nn.CrossEntropyLoss()
-    results = {'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': []}
+    results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [], 'val_loss': [], 'val_acc@1': [], 'val_acc@5': []}
 
     best_acc = 0.0
     for epoch in range(1, epochs + 1):
-        train_loss, train_acc = train_val(model, train_loader, optimizer)
+        train_loss, train_acc_1, train_acc_5 = train_val(model, train_loader, optimizer)
         results['train_loss'].append(train_loss)
-        results['train_acc'].append(train_acc)
-        val_loss, val_acc = train_val(model, val_loader, None)
+        results['train_acc@1'].append(train_acc_1)
+        results['train_acc@5'].append(train_acc_5)
+        val_loss, val_acc_1, val_acc_5 = train_val(model, val_loader, None)
         results['val_loss'].append(val_loss)
-        results['val_acc'].append(val_acc)
+        results['val_acc@1'].append(val_acc_1)
+        results['val_acc@5'].append(val_acc_5)
         # save statistics
         data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
         data_frame.to_csv('results/backbone_statistics.csv', index_label='epoch')
-        if val_acc > best_acc:
-            best_acc = val_acc
+        if val_acc_1 > best_acc:
+            best_acc = val_acc_1
             torch.save(model.state_dict(), 'results/backbone.pth')

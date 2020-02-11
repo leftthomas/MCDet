@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
+from torchvision.models.resnet import Bottleneck as BK
 
 
 class FastSCNN(nn.Module):
@@ -97,30 +98,30 @@ class Classifier(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
 
+        self.conv1 = BK(inplanes=128, planes=192)
         self.dsconv1 = nn.Sequential(
             # depthwise convolution
-            nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=1, dilation=1, groups=128, bias=False),
-            nn.BatchNorm2d(128),
-            # pointwise convolution
-            nn.Conv2d(128, 192, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
-            nn.BatchNorm2d(192),
-            nn.ReLU(inplace=True))
-        self.dsconv2 = nn.Sequential(
             nn.Conv2d(192, 192, kernel_size=3, stride=2, padding=1, dilation=1, groups=192, bias=False),
             nn.BatchNorm2d(192),
+            # pointwise convolution
             nn.Conv2d(192, 256, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True))
-        self.drop_out = nn.Dropout(p=0.1)
-        self.conv = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=1, padding=0, bias=True)
-        self.fc = nn.Linear(256, num_classes)
+        self.dsconv2 = nn.Sequential(
+            nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=1, dilation=1, groups=256, bias=False),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256, 320, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
+            nn.BatchNorm2d(320),
+            nn.ReLU(inplace=True))
+        self.conv2 = BK(inplanes=320, planes=512)
+        self.fc = nn.Linear(512, num_classes)
 
     def forward(self, x):
         batch_size = x.size(0)
+        x = self.conv1(x)
         x = self.dsconv1(x)
         x = self.dsconv2(x)
-        x = self.drop_out(x)
-        x = self.conv(x)
+        x = self.conv2(x)
         x = F.adaptive_avg_pool2d(x, output_size=(1, 1)).view(batch_size, -1)
         x = self.fc(x)
         return x
