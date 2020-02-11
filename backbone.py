@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from torchvision.models.resnet import Bottleneck as BK
 
 
 class FastSCNN(nn.Module):
@@ -98,7 +97,7 @@ class Classifier(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
 
-        self.conv1 = BK(inplanes=128, planes=192)
+        self.conv1 = Bottleneck(128, 192, 1, 6)
         self.dsconv1 = nn.Sequential(
             # depthwise convolution
             nn.Conv2d(192, 192, kernel_size=3, stride=2, padding=1, dilation=1, groups=192, bias=False),
@@ -113,7 +112,7 @@ class Classifier(nn.Module):
             nn.Conv2d(256, 320, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
             nn.BatchNorm2d(320),
             nn.ReLU(inplace=True))
-        self.conv2 = BK(inplanes=320, planes=512)
+        self.conv2 = Bottleneck(320, 512, 1, 4)
         self.fc = nn.Linear(512, num_classes)
 
     def forward(self, x):
