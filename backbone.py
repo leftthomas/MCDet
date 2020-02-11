@@ -24,7 +24,7 @@ class LearningToDownSample(nn.Module):
     def __init__(self, in_channels):
         super().__init__()
 
-        self.conv = ConvBlock(in_channels=in_channels, out_channels=32, stride=2)
+        self.conv = ConvBlock(in_channels=in_channels, out_channels=32, kernel_size=7, stride=2, padding=3)
         self.dsconv1 = nn.Sequential(
             # depthwise convolution
             nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1, dilation=1, groups=32, bias=False),
@@ -97,11 +97,23 @@ class Classifier(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
 
-        self.dsconv1 = ConvBlock(in_channels=128, out_channels=128, stride=1, dilation=1, groups=128)
-        self.dsconv2 = ConvBlock(in_channels=128, out_channels=128, stride=1, dilation=1, groups=128)
+        self.dsconv1 = nn.Sequential(
+            # depthwise convolution
+            nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=1, dilation=1, groups=128, bias=False),
+            nn.BatchNorm2d(128),
+            # pointwise convolution
+            nn.Conv2d(128, 192, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
+            nn.BatchNorm2d(192),
+            nn.ReLU(inplace=True))
+        self.dsconv2 = nn.Sequential(
+            nn.Conv2d(192, 192, kernel_size=3, stride=2, padding=1, dilation=1, groups=192, bias=False),
+            nn.BatchNorm2d(192),
+            nn.Conv2d(192, 256, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True))
         self.drop_out = nn.Dropout(p=0.1)
-        self.conv = ConvBlock(in_channels=128, out_channels=128, groups=1)
-        self.fc = nn.Linear(128, num_classes)
+        self.conv = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=1, padding=0, bias=True)
+        self.fc = nn.Linear(256, num_classes)
 
     def forward(self, x):
         batch_size = x.size(0)
