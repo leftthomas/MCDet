@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from thop import profile, clever_format
-from torch.optim.lr_scheduler import MultiStepLR
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from tqdm import tqdm
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
-    lr_scheduler = MultiStepLR(optimizer, milestones=[int(epochs * 0.3), int(epochs * 0.6)], gamma=0.1)
+    lr_scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True, min_lr=1 - 5)
     loss_criterion = nn.CrossEntropyLoss()
     results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [], 'val_loss': [], 'val_acc@1': [], 'val_acc@5': []}
 
@@ -76,6 +76,7 @@ if __name__ == '__main__':
         results['train_acc@1'].append(train_acc_1)
         results['train_acc@5'].append(train_acc_5)
         val_loss, val_acc_1, val_acc_5 = train_val(model, val_loader, None)
+        lr_scheduler.step(val_loss)
         results['val_loss'].append(val_loss)
         results['val_acc@1'].append(val_acc_1)
         results['val_acc@5'].append(val_acc_5)

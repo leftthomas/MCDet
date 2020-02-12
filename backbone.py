@@ -51,16 +51,16 @@ class GlobalFeatureExtractor(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.first_block = nn.Sequential(Bottleneck(64, 64, 2, 6),
-                                         Bottleneck(64, 64, 1, 6),
-                                         Bottleneck(64, 64, 1, 6))
-        self.second_block = nn.Sequential(Bottleneck(64, 96, 2, 6),
-                                          Bottleneck(96, 96, 1, 6),
-                                          Bottleneck(96, 96, 1, 6))
-        self.third_block = nn.Sequential(Bottleneck(96, 128, 1, 6),
-                                         Bottleneck(128, 128, 1, 6),
-                                         Bottleneck(128, 128, 1, 6))
-        self.ppm = PPMModule(128, 128)
+        self.first_block = nn.Sequential(Bottleneck(64, 96, 2, 6),
+                                         Bottleneck(96, 96, 1, 6),
+                                         Bottleneck(96, 96, 1, 6))
+        self.second_block = nn.Sequential(Bottleneck(96, 128, 2, 6),
+                                          Bottleneck(128, 128, 1, 6),
+                                          Bottleneck(128, 128, 1, 6))
+        self.third_block = nn.Sequential(Bottleneck(128, 160, 1, 6),
+                                         Bottleneck(160, 160, 1, 6),
+                                         Bottleneck(160, 160, 1, 6))
+        self.ppm = PPMModule(160, 160)
 
     def forward(self, x):
         x = self.first_block(x)
@@ -75,11 +75,11 @@ class FeatureFusion(nn.Module):
         super().__init__()
 
         self.scale_factor = scale_factor
-        self.conv_high_res = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=True)
+        self.conv_high_res = nn.Conv2d(64, 160, kernel_size=1, stride=1, padding=0, bias=True)
 
-        self.dwconv = ConvBlock(in_channels=128, out_channels=128, stride=1, padding=scale_factor,
-                                dilation=scale_factor, groups=128)
-        self.conv_low_res = nn.Conv2d(128, 128, kernel_size=1, stride=1, padding=0, bias=True)
+        self.dwconv = ConvBlock(in_channels=160, out_channels=160, stride=1, padding=scale_factor,
+                                dilation=scale_factor, groups=160)
+        self.conv_low_res = nn.Conv2d(160, 160, kernel_size=1, stride=1, padding=0, bias=True)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, high_res_input, low_res_input):
@@ -97,22 +97,22 @@ class Classifier(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
 
-        self.conv1 = Bottleneck(128, 192, 1, 6)
+        self.conv1 = Bottleneck(160, 224, 1, 6)
         self.dsconv1 = nn.Sequential(
             # depthwise convolution
-            nn.Conv2d(192, 192, kernel_size=3, stride=2, padding=1, dilation=1, groups=192, bias=False),
-            nn.BatchNorm2d(192),
+            nn.Conv2d(224, 224, kernel_size=3, stride=2, padding=1, dilation=1, groups=224, bias=False),
+            nn.BatchNorm2d(224),
             # pointwise convolution
-            nn.Conv2d(192, 256, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
-            nn.BatchNorm2d(256),
+            nn.Conv2d(224, 288, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
+            nn.BatchNorm2d(288),
             nn.ReLU(inplace=True))
         self.dsconv2 = nn.Sequential(
-            nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=1, dilation=1, groups=256, bias=False),
-            nn.BatchNorm2d(256),
-            nn.Conv2d(256, 320, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
-            nn.BatchNorm2d(320),
+            nn.Conv2d(288, 288, kernel_size=3, stride=2, padding=1, dilation=1, groups=288, bias=False),
+            nn.BatchNorm2d(288),
+            nn.Conv2d(288, 352, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
+            nn.BatchNorm2d(352),
             nn.ReLU(inplace=True))
-        self.conv2 = Bottleneck(320, 512, 1, 4)
+        self.conv2 = Bottleneck(352, 512, 1, 6)
         self.fc = nn.Linear(512, num_classes)
 
     def forward(self, x):
