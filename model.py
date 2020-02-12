@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from backbone import FastSCNN
+from backbone import FastResNet
 
 
 class Model(nn.Module):
@@ -12,9 +12,9 @@ class Model(nn.Module):
         self.ensemble_size = ensemble_size
 
         # common features
-        basic_model = FastSCNN(in_channels=3, num_classes=meta_class_size)
-        self.learning_to_down_sample = basic_model.learning_to_down_sample
-        self.global_feature_extractor = basic_model.global_feature_extractor
+        basic_model = FastResNet(in_channels=3, num_classes=meta_class_size)
+        self.learning_to_down_sample = basic_model.head
+        self.global_feature_extractor = basic_model.body
         self.feature_fusion = basic_model.feature_fusion
         print("# trainable common feature parameters:",
               sum(param.numel() if param.requires_grad else 0 for param in self.learning_to_down_sample.parameters())
@@ -24,7 +24,7 @@ class Model(nn.Module):
         # individual features
         self.individual_extractor = []
         for i in range(ensemble_size):
-            self.individual_extractor.append(FastSCNN(in_channels=3, num_classes=meta_class_size).classifier)
+            self.individual_extractor.append(FastResNet(in_channels=3, num_classes=meta_class_size).classifier)
         self.individual_extractor = nn.ModuleList(self.individual_extractor)
         print("# trainable individual feature parameters:",
               sum(param.numel() if param.requires_grad else 0 for param in

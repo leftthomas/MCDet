@@ -1,30 +1,38 @@
-import torch
 from torch import nn
 from torch.nn import functional as F
 
 
-class FastSCNN(nn.Module):
+class FastResNet(nn.Module):
     def __init__(self, in_channels, num_classes):
         super().__init__()
 
-        self.learning_to_down_sample = LearningToDownSample(in_channels)
-        self.global_feature_extractor = GlobalFeatureExtractor()
-        self.feature_fusion = FeatureFusion(scale_factor=4)
-        self.classifier = Classifier(num_classes)
+        self.head = Head(in_channels)
+        self.body = Body()
+        self.tail = Tail()
+        self.classifier = nn.Linear(512, num_classes)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
-        shared = self.learning_to_down_sample(x)
-        x = self.global_feature_extractor(shared)
-        x = self.feature_fusion(shared, x)
+        batch_size = x.size(0)
+        x = self.head(x)
+        x = self.body(x)
+        x = self.tail(x)
+        x = F.adaptive_avg_pool2d(x, output_size=(1, 1)).view(batch_size, -1)
         x = self.classifier(x)
         return x
 
 
-class LearningToDownSample(nn.Module):
+class Head(nn.Module):
     def __init__(self, in_channels):
         super().__init__()
 
-        self.conv = ConvBlock(in_channels=in_channels, out_channels=32, kernel_size=7, stride=2, padding=3)
+        self.conv = ConvBlock(in_channels=in_channels, out_channels=32, stride=2)
         self.dsconv1 = nn.Sequential(
             # depthwise convolution
             nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1, dilation=1, groups=32, bias=False),
@@ -34,7 +42,7 @@ class LearningToDownSample(nn.Module):
             nn.BatchNorm2d(48),
             nn.ReLU(inplace=True))
         self.dsconv2 = nn.Sequential(
-            nn.Conv2d(48, 48, kernel_size=3, stride=2, padding=1, dilation=1, groups=48, bias=False),
+            nn.Conv2d(48, 48, kernel_size=3, stride=1, padding=1, dilation=1, groups=48, bias=False),
             nn.BatchNorm2d(48),
             nn.Conv2d(48, 64, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
             nn.BatchNorm2d(64),
@@ -47,82 +55,50 @@ class LearningToDownSample(nn.Module):
         return x
 
 
-class GlobalFeatureExtractor(nn.Module):
+class Body(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.first_block = nn.Sequential(Bottleneck(64, 96, 2, 6),
-                                         Bottleneck(96, 96, 1, 6),
-                                         Bottleneck(96, 96, 1, 6))
-        self.second_block = nn.Sequential(Bottleneck(96, 128, 2, 6),
-                                          Bottleneck(128, 128, 1, 6),
-                                          Bottleneck(128, 128, 1, 6))
-        self.third_block = nn.Sequential(Bottleneck(128, 160, 1, 6),
-                                         Bottleneck(160, 160, 1, 6),
-                                         Bottleneck(160, 160, 1, 6))
-        self.ppm = PPMModule(160, 160)
+        self.layer1 = nn.Sequential(Bottleneck(64, 64, 2, 6),
+                                    Bottleneck(64, 64, 1, 6))
+        self.layer2 = nn.Sequential(Bottleneck(64, 96, 2, 6),
+                                    Bottleneck(96, 96, 1, 6))
+        self.layer3 = nn.Sequential(Bottleneck(96, 128, 1, 6),
+                                    Bottleneck(128, 128, 1, 6))
 
     def forward(self, x):
-        x = self.first_block(x)
-        x = self.second_block(x)
-        x = self.third_block(x)
-        x = self.ppm(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
         return x
 
 
-class FeatureFusion(nn.Module):
-    def __init__(self, scale_factor):
+class Tail(nn.Module):
+    def __init__(self):
         super().__init__()
 
-        self.scale_factor = scale_factor
-        self.conv_high_res = nn.Conv2d(64, 160, kernel_size=1, stride=1, padding=0, bias=True)
-
-        self.dwconv = ConvBlock(in_channels=160, out_channels=160, stride=1, padding=scale_factor,
-                                dilation=scale_factor, groups=160)
-        self.conv_low_res = nn.Conv2d(160, 160, kernel_size=1, stride=1, padding=0, bias=True)
-        self.relu = nn.ReLU(inplace=True)
-
-    def forward(self, high_res_input, low_res_input):
-        low_res_input = F.interpolate(input=low_res_input, scale_factor=self.scale_factor, mode='bilinear',
-                                      align_corners=True)
-        low_res_input = self.dwconv(low_res_input)
-        low_res_input = self.conv_low_res(low_res_input)
-
-        high_res_input = self.conv_high_res(high_res_input)
-        x = torch.add(high_res_input, low_res_input)
-        return self.relu(x)
-
-
-class Classifier(nn.Module):
-    def __init__(self, num_classes):
-        super().__init__()
-
-        self.conv1 = Bottleneck(160, 224, 1, 6)
+        self.conv1 = ConvBlock(in_channels=128, out_channels=192, stride=2)
         self.dsconv1 = nn.Sequential(
             # depthwise convolution
-            nn.Conv2d(224, 224, kernel_size=3, stride=2, padding=1, dilation=1, groups=224, bias=False),
-            nn.BatchNorm2d(224),
+            nn.Conv2d(192, 192, kernel_size=3, stride=1, padding=1, dilation=1, groups=192, bias=False),
+            nn.BatchNorm2d(192),
             # pointwise convolution
-            nn.Conv2d(224, 288, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
-            nn.BatchNorm2d(288),
+            nn.Conv2d(192, 256, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
+            nn.BatchNorm2d(256),
             nn.ReLU(inplace=True))
         self.dsconv2 = nn.Sequential(
-            nn.Conv2d(288, 288, kernel_size=3, stride=2, padding=1, dilation=1, groups=288, bias=False),
-            nn.BatchNorm2d(288),
-            nn.Conv2d(288, 352, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
-            nn.BatchNorm2d(352),
+            nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, dilation=1, groups=256, bias=False),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256, 320, kernel_size=1, stride=1, padding=0, dilation=1, groups=1, bias=False),
+            nn.BatchNorm2d(320),
             nn.ReLU(inplace=True))
-        self.conv2 = Bottleneck(352, 512, 1, 6)
-        self.fc = nn.Linear(512, num_classes)
+        self.conv2 = ConvBlock(in_channels=320, out_channels=512, stride=1)
 
     def forward(self, x):
-        batch_size = x.size(0)
         x = self.conv1(x)
         x = self.dsconv1(x)
         x = self.dsconv2(x)
         x = self.conv2(x)
-        x = F.adaptive_avg_pool2d(x, output_size=(1, 1)).view(batch_size, -1)
-        x = self.fc(x)
         return x
 
 
@@ -158,32 +134,10 @@ class Bottleneck(nn.Module):
             # pw-linear
             nn.Conv2d(hidden_dim, out_channels, 1, 1, 0, bias=False),
             nn.BatchNorm2d(out_channels))
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         if self.use_res_connect:
             return x + self.conv(x)
         else:
             return self.conv(x)
-
-
-class PPMModule(nn.Module):
-    def __init__(self, in_channels, out_channels, sizes=(1, 2, 3, 6)):
-        super().__init__()
-
-        inter_channels = in_channels // len(sizes)
-        assert in_channels % len(sizes) == 0
-
-        self.stages = nn.ModuleList([self._make_stage(in_channels, inter_channels, size) for size in sizes])
-        self.conv = ConvBlock(in_channels * 2, out_channels, kernel_size=1, stride=1, padding=0)
-
-    def _make_stage(self, in_channels, inter_channels, size):
-        prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
-        conv = ConvBlock(in_channels, inter_channels, kernel_size=1, stride=1, padding=0)
-        return nn.Sequential(prior, conv)
-
-    def forward(self, feats):
-        h, w = feats.size(2), feats.size(3)
-        priors = [F.interpolate(input=stage(feats), size=(h, w), mode='bilinear',
-                                align_corners=True) for stage in self.stages] + [feats]
-        bottle = self.conv(torch.cat(priors, dim=1))
-        return bottle
