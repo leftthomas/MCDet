@@ -65,7 +65,7 @@ if __name__ == '__main__':
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
-    lr_scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True, min_lr=1 - 5)
+    lr_scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True, min_lr=1e-5)
     loss_criterion = nn.CrossEntropyLoss()
     results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [], 'val_loss': [], 'val_acc@1': [], 'val_acc@5': []}
 
