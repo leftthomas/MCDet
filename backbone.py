@@ -1,9 +1,10 @@
+import torch
 from torch import nn
 from torch.nn import functional as F
 
 
 class FastResNet(nn.Module):
-    def __init__(self, in_channels, num_classes):
+    def __init__(self, in_channels=3, num_classes=1000, pretrained=False):
         super().__init__()
 
         self.head = Head(in_channels)
@@ -17,6 +18,10 @@ class FastResNet(nn.Module):
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
+
+        if pretrained:
+            state_dict = torch.load('results/backbone.pth', map_location='cpu')
+            self.load_state_dict(state_dict)
 
     def forward(self, x):
         batch_size = x.size(0)

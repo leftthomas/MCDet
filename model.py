@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.nn import functional as F
 
 from backbone import FastResNet
 
@@ -12,31 +13,31 @@ class Model(nn.Module):
         self.ensemble_size = ensemble_size
 
         # common features
-        basic_model = FastResNet(in_channels=3, num_classes=meta_class_size)
-        self.learning_to_down_sample = basic_model.head
-        self.global_feature_extractor = basic_model.body
-        self.feature_fusion = basic_model.feature_fusion
+        self.head = FastResNet(pretrained=True).head
+        self.body = FastResNet(pretrained=True).body
         print("# trainable common feature parameters:",
-              sum(param.numel() if param.requires_grad else 0 for param in self.learning_to_down_sample.parameters())
-              + sum(param.numel() if param.requires_grad else 0 for param in self.global_feature_extractor.parameters())
-              + sum(param.numel() if param.requires_grad else 0 for param in self.feature_fusion.parameters()))
+              sum(param.numel() if param.requires_grad else 0 for param in self.head.parameters())
+              + sum(param.numel() if param.requires_grad else 0 for param in self.body.parameters()))
 
         # individual features
-        self.individual_extractor = []
+        self.tails = []
         for i in range(ensemble_size):
-            self.individual_extractor.append(FastResNet(in_channels=3, num_classes=meta_class_size).classifier)
-        self.individual_extractor = nn.ModuleList(self.individual_extractor)
+            self.tails.append(FastResNet(pretrained=True).tail)
+        self.tails = nn.ModuleList(self.tails)
         print("# trainable individual feature parameters:",
               sum(param.numel() if param.requires_grad else 0 for param in
-                  self.individual_extractor.parameters()) // ensemble_size)
+                  self.tails.parameters()) // ensemble_size)
+
+        self.classifier = nn.ModuleList([nn.Linear(512, meta_class_size) for _ in range(ensemble_size)])
 
     def forward(self, x):
-        shared = self.learning_to_down_sample(x)
-        x = self.global_feature_extractor(shared)
-        common_feature = self.feature_fusion(shared, x)
+        batch_size = x.size(0)
+        shared = self.body(self.head(x))
         out = []
         for i in range(self.ensemble_size):
-            individual_feature = self.individual_extractor[i](common_feature)
-            out.append(individual_feature)
+            feature = self.tails[i](shared)
+            feature = F.adaptive_avg_pool2d(feature, output_size=(1, 1)).view(batch_size, -1)
+            feature = self.classifier[i](feature)
+            out.append(feature)
         out = torch.stack(out, dim=1)
         return out
