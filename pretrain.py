@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from thop import profile, clever_format
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from tqdm import tqdm
@@ -56,16 +56,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
     data_path, batch_size, epochs = args.data_path, args.batch_size, args.epochs
     train_data = datasets.ImageFolder(root='{}/{}'.format(data_path, 'train'), transform=utils.train_transform)
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16)
     val_data = datasets.ImageFolder(root='{}/{}'.format(data_path, 'val'), transform=utils.val_transform)
-    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=8)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=16)
 
     model = FastResNet(in_channels=3, num_classes=1000).cuda()
     flops, params = profile(model, inputs=(torch.randn(1, 3, 224, 224).cuda(),))
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
-    lr_scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True, min_lr=1e-5)
+    lr_scheduler = StepLR(optimizer, step_size=30, gamma=0.1)
     loss_criterion = nn.CrossEntropyLoss()
     results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [], 'val_loss': [], 'val_acc@1': [], 'val_acc@5': []}
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
         results['train_acc@1'].append(train_acc_1)
         results['train_acc@5'].append(train_acc_5)
         val_loss, val_acc_1, val_acc_5 = train_val(model, val_loader, None)
-        lr_scheduler.step(val_loss)
+        lr_scheduler.step()
         results['val_loss'].append(val_loss)
         results['val_acc@1'].append(val_acc_1)
         results['val_acc@5'].append(val_acc_5)
