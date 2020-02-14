@@ -15,7 +15,7 @@ rgb_std = {'car': [0.2237, 0.2193, 0.2568], 'cub': [0.2767, 0.2760, 0.2850], 'so
 
 # for ImageNet train and val
 train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(224, scale=(0.8, 1.2), ratio=(0.8, 1.2)),
+    transforms.RandomResizedCrop(224),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
