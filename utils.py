@@ -138,17 +138,12 @@ class ImageReader(Dataset):
 def recall(feature_vectors, feature_labels, rank, gallery_vectors=None, gallery_labels=None):
     num_features = len(feature_labels)
     feature_labels = torch.tensor(feature_labels, device=feature_vectors.device)
-    feature_vectors = feature_vectors.permute(1, 0, 2).contiguous()
     if gallery_vectors is None:
-        gallery_vectors = feature_vectors.permute(0, 2, 1).contiguous()
+        gallery_vectors = feature_vectors.t().contiguous()
     else:
-        gallery_vectors = gallery_vectors.permute(1, 2, 0).contiguous()
+        gallery_vectors = gallery_vectors.t().contiguous()
 
-    # avoid OOM error
-    sim_matrix = []
-    for feature_vector in torch.chunk(feature_vectors, chunks=16, dim=1):
-        sim_matrix.append(torch.mean(feature_vector.bmm(gallery_vectors), dim=0))
-    sim_matrix = torch.cat(sim_matrix, dim=0)
+    sim_matrix = feature_vectors.mm(gallery_vectors)
 
     if gallery_labels is None:
         sim_matrix[torch.eye(num_features, device=feature_vectors.device).bool()] = -1

@@ -19,7 +19,7 @@ def train(net, optim):
     total_loss, total_correct, total_num, data_bar = 0, 0, 0, tqdm(train_data_loader)
     for inputs, labels in data_bar:
         inputs, labels = inputs.cuda(), labels.cuda()
-        out = net(inputs)
+        features, out = net(inputs)
         loss = cel_criterion(out.permute(0, 2, 1).contiguous(), labels)
         optim.zero_grad()
         loss.backward()
@@ -42,9 +42,9 @@ def eval(net, recalls):
             eval_dict[key]['features'] = []
             for inputs, labels in tqdm(eval_dict[key]['data_loader'], desc='processing {} data'.format(key)):
                 inputs, labels = inputs.cuda(), labels.cuda()
-                out = net(inputs)
-                out = F.normalize(out, dim=-1)
-                eval_dict[key]['features'].append(out.cpu())
+                features, out = net(inputs)
+                out = F.normalize(features, dim=-1)
+                eval_dict[key]['features'].append(out)
             eval_dict[key]['features'] = torch.cat(eval_dict[key]['features'], dim=0)
 
     # compute recall metric
