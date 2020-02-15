@@ -13,11 +13,9 @@ class Model(nn.Module):
         self.ensemble_size = ensemble_size
 
         # common features
-        self.head = FastResNet(pretrained=True).head
-        self.body = FastResNet(pretrained=True).body
-        print("# trainable common feature parameters:",
-              sum(param.numel() if param.requires_grad else 0 for param in self.head.parameters())
-              + sum(param.numel() if param.requires_grad else 0 for param in self.body.parameters()))
+        self.head = nn.Sequential(FastResNet(pretrained=True).head, FastResNet(pretrained=True).body)
+        print("# trainable common feature parameters:", sum(param.numel() if param.requires_grad else 0 for
+                                                            param in self.head.parameters()))
 
         # individual features
         self.tails = []
@@ -32,12 +30,14 @@ class Model(nn.Module):
 
     def forward(self, x):
         batch_size = x.size(0)
-        shared = self.body(self.head(x))
-        out = []
+        shared = self.head(x)
+        features, out = [], []
         for i in range(self.ensemble_size):
             feature = self.tails[i](shared)
             feature = F.adaptive_avg_pool2d(feature, output_size=(1, 1)).view(batch_size, -1)
-            feature = self.classifier[i](feature)
-            out.append(feature)
+            features.append(feature)
+            classes = self.classifier[i](feature)
+            out.append(classes)
+        features = torch.sum(torch.stack(features, dim=1), dim=1)
         out = torch.stack(out, dim=1)
-        return out
+        return features, out
