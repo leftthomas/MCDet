@@ -80,7 +80,7 @@ class ECAMobileNetV2(nn.Module):
         self.conv = ConvBNReLU(3, input_channel, stride=2)
 
         # building inverted residual blocks
-        for i, t, c, n, s in enumerate(inverted_residual_setting):
+        for i, (t, c, n, s) in enumerate(inverted_residual_setting):
             modules = []
             for j in range(n):
                 if c <= 96:
