@@ -126,7 +126,7 @@ class ECAMobileNetV2(nn.Module):
         x = self.block6(x)
         x = self.block7(x)
         x = self.last_conv(x)
-        x = torch.flatten(F.adaptive_avg_pool2d(x, output_size=(1, 1)))
+        x = torch.flatten(F.adaptive_avg_pool2d(x, output_size=(1, 1)), start_dim=1)
         x = self.classifier(x)
         return x
 
