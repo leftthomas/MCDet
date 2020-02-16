@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from backbone import FastResNet
+from torchvision.models import mobilenet_v2
 
 
 class Model(nn.Module):
@@ -13,20 +13,20 @@ class Model(nn.Module):
         self.ensemble_size = ensemble_size
 
         # common features
-        self.head = nn.Sequential(FastResNet(pretrained=True).head, FastResNet(pretrained=True).body)
+        self.head = nn.Identity()
         print("# trainable common feature parameters:", sum(param.numel() if param.requires_grad else 0 for
                                                             param in self.head.parameters()))
 
         # individual features
         self.tails = []
         for i in range(ensemble_size):
-            self.tails.append(FastResNet(pretrained=True).tail)
+            self.tails.append(mobilenet_v2(pretrained=True).features)
         self.tails = nn.ModuleList(self.tails)
         print("# trainable individual feature parameters:",
               sum(param.numel() if param.requires_grad else 0 for param in
                   self.tails.parameters()) // ensemble_size)
 
-        self.classifier = nn.ModuleList([nn.Linear(512, meta_class_size) for _ in range(ensemble_size)])
+        self.classifier = nn.ModuleList([nn.Linear(1280, meta_class_size) for _ in range(ensemble_size)])
 
     def forward(self, x):
         batch_size = x.size(0)
