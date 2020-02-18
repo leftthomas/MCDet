@@ -43,9 +43,7 @@ class Model(nn.Module):
               sum(param.numel() if param.requires_grad else 0 for param in
                   self.tails.parameters()) // ensemble_size)
 
-        self.classifier = nn.ModuleList([eca_mobilenet_v2(pretrained=True, last_channel=feature_dim,
-                                                          num_classes=meta_class_size).classifier for _ in
-                                         range(ensemble_size)])
+        self.classifier = nn.ModuleList([nn.Linear(feature_dim, meta_class_size) for _ in range(ensemble_size)])
         print("# trainable individual classifier parameters:",
               sum(param.numel() if param.requires_grad else 0 for param in
                   self.classifier.parameters()) // ensemble_size)
