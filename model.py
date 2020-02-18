@@ -2,18 +2,27 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from torchvision.models import mobilenet_v2
+from backbone import eca_mobilenet_v2
 
 
 class Model(nn.Module):
-    def __init__(self, ensemble_size, meta_class_size):
+    def __init__(self, ensemble_size, meta_class_size, feature_dim, share_type='none'):
         super(Model, self).__init__()
 
         # configs
         self.ensemble_size = ensemble_size
+        module_names = ['conv', 'block1', 'block2', 'block3', 'block4', 'block5', 'block6', 'block7', 'last_conv']
 
         # common features
-        self.head = nn.Identity()
+        if share_type != 'none':
+            common_module_names = module_names[:module_names.index(share_type)]
+        else:
+            common_module_names = []
+        self.head = []
+        for name, module in eca_mobilenet_v2(pretrained=True).named_modules():
+            if name in common_module_names:
+                self.head.append(module)
+        self.head = nn.Sequential(*self.head)
         print("# trainable common feature parameters:", sum(param.numel() if param.requires_grad else 0 for
                                                             param in self.head.parameters()))
 

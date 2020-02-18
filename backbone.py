@@ -6,7 +6,7 @@ from torch.nn import functional as F
 class ECAModule(nn.Module):
     """Constructs a ECA module.
     Args:
-        k_size: Adaptive selection of kernel size
+        k_size (int): the kernel size of Conv1d
     """
 
     def __init__(self, k_size=3):
@@ -83,7 +83,7 @@ class ECAMobileNetV2(nn.Module):
         for i, (t, c, n, s) in enumerate(inverted_residual_setting):
             modules = []
             for j in range(n):
-                if c <= 96:
+                if c < 96:
                     k_size = 1
                 else:
                     k_size = 3
@@ -131,14 +131,26 @@ class ECAMobileNetV2(nn.Module):
         return x
 
 
-def eca_mobilenet_v2(pretrained=False, **kwargs):
+def eca_mobilenet_v2(pretrained=False, last_channel=1280, num_classes=1000):
     """
     Constructs a ECA_MobileNetV2 architecture from pre-trained on ImageNet.
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained (bool): if True, returns a model pre-trained on ImageNet
+        last_channel: (int): the out channel of last Conv2d
+        num_classes: (int): the num classes of fc output
     """
-    model = ECAMobileNetV2(**kwargs)
+    model = ECAMobileNetV2(last_channel=last_channel, num_classes=num_classes)
     if pretrained:
         state_dict = torch.load('results/backbone.pth', map_location='cpu')
-        model.load_state_dict(state_dict)
+        if state_dict['last_conv.0.weight'].size(0) != last_channel:
+            state_dict.pop('last_conv.0.weight')
+            state_dict.pop('last_conv.1.weight')
+            state_dict.pop('last_conv.1.bias')
+            state_dict.pop('last_conv.1.running_mean')
+            state_dict.pop('last_conv.1.running_var')
+            state_dict.pop('last_conv.1.num_batches_tracked')
+        if state_dict['classifier.1.weight'].size() != (num_classes, last_channel):
+            state_dict.pop('classifier.1.weight')
+            state_dict.pop('classifier.1.bias')
+        model.load_state_dict(state_dict, strict=False)
     return model
