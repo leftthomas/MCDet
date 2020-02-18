@@ -5,7 +5,8 @@ import torch
 import torch.nn.functional as F
 from thop import profile, clever_format
 from torch.nn import CrossEntropyLoss
-from torch.optim import Adam
+from torch.optim import SGD
+from torch.optim.lr_scheduler import StepLR
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
@@ -70,7 +71,7 @@ if __name__ == '__main__':
     parser.add_argument('--recalls', default='1,2,4,8', type=str, help='selected recall')
     parser.add_argument('--load_ids', action='store_true', help='load already generated ids or not')
     parser.add_argument('--batch_size', default=32, type=int, help='train batch size')
-    parser.add_argument('--num_epochs', default=20, type=int, help='train epoch number')
+    parser.add_argument('--num_epochs', default=12, type=int, help='train epoch number')
     parser.add_argument('--share_type', default='block5', type=str,
                         choices=['none', 'conv', 'block1', 'block2', 'block3', 'block4', 'block5', 'block6', 'block7',
                                  'last_conv'], help='share backbone module name')
@@ -109,7 +110,8 @@ if __name__ == '__main__':
     flops, params = profile(model, inputs=(torch.randn(1, 3, 256, 256).cuda(),))
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
-    optimizer = Adam(model.parameters(), lr=1e-4)
+    optimizer = SGD(model.parameters(), lr=0.01, momentum=0.9)
+    lr_scheduler = StepLR(optimizer, step_size=NUM_EPOCHS // 3, gamma=0.1)
     cel_criterion = CrossEntropyLoss()
 
     best_recall = 0.0
@@ -118,6 +120,7 @@ if __name__ == '__main__':
         results['train_loss'].append(train_loss)
         results['train_accuracy'].append(train_accuracy)
         rank = eval(model, recall_ids)
+        lr_scheduler.step()
 
         # save statistics
         data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
