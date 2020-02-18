@@ -57,6 +57,6 @@ class Model(nn.Module):
             features.append(feature)
             classes = self.classifier[i](feature)
             out.append(classes)
-        features = torch.sum(torch.stack(features, dim=1), dim=1)
+        features = torch.stack(features, dim=1)
         out = torch.stack(out, dim=1)
         return features, out

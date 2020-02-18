@@ -5,8 +5,8 @@ import torch
 import torch.nn.functional as F
 from thop import profile, clever_format
 from torch.nn import CrossEntropyLoss
-from torch.optim import SGD
-from torch.optim.lr_scheduler import StepLR
+from torch.optim import Adam
+from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
@@ -43,7 +43,7 @@ def eval(net, recalls):
             for inputs, labels in tqdm(eval_dict[key]['data_loader'], desc='processing {} data'.format(key)):
                 inputs, labels = inputs.cuda(), labels.cuda()
                 features, out = net(inputs)
-                out = F.normalize(features, dim=-1)
+                out = F.normalize(torch.sum(F.normalize(features, dim=-1), dim=1), dim=-1)
                 eval_dict[key]['features'].append(out)
             eval_dict[key]['features'] = torch.cat(eval_dict[key]['features'], dim=0)
 
@@ -70,12 +70,12 @@ if __name__ == '__main__':
                         help='crop data or not, it only works for car or cub dataset')
     parser.add_argument('--recalls', default='1,2,4,8', type=str, help='selected recall')
     parser.add_argument('--load_ids', action='store_true', help='load already generated ids or not')
-    parser.add_argument('--batch_size', default=32, type=int, help='train batch size')
+    parser.add_argument('--batch_size', default=128, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=12, type=int, help='train epoch number')
     parser.add_argument('--share_type', default='block5', type=str,
                         choices=['none', 'conv', 'block1', 'block2', 'block3', 'block4', 'block5', 'block6', 'block7',
                                  'last_conv'], help='share backbone module name')
-    parser.add_argument('--ensemble_size', default=48, type=int, help='ensemble model size')
+    parser.add_argument('--ensemble_size', default=24, type=int, help='ensemble model size')
     parser.add_argument('--meta_class_size', default=12, type=int, help='meta class size')
     parser.add_argument('--feature_dim', default=512, type=int, help='feature dim')
 
@@ -110,8 +110,8 @@ if __name__ == '__main__':
     flops, params = profile(model, inputs=(torch.randn(1, 3, 256, 256).cuda(),))
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
-    optimizer = SGD(model.parameters(), lr=0.01, momentum=0.9)
-    lr_scheduler = StepLR(optimizer, step_size=NUM_EPOCHS // 3, gamma=0.1)
+    optimizer = Adam(model.parameters(), lr=1e-4)
+    lr_scheduler = MultiStepLR(optimizer, milestones=[int(0.6 * NUM_EPOCHS), int(0.8 * NUM_EPOCHS)], gamma=0.5)
     cel_criterion = CrossEntropyLoss()
 
     best_recall = 0.0
