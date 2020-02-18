@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from thop import profile, clever_format
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
-from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
@@ -72,15 +71,20 @@ if __name__ == '__main__':
     parser.add_argument('--load_ids', action='store_true', help='load already generated ids or not')
     parser.add_argument('--batch_size', default=32, type=int, help='train batch size')
     parser.add_argument('--num_epochs', default=20, type=int, help='train epoch number')
+    parser.add_argument('--share_type', default='block5', type=str,
+                        choices=['none', 'conv', 'block1', 'block2', 'block3', 'block4', 'block5', 'block6', 'block7',
+                                 'last_conv'], help='share backbone module name')
     parser.add_argument('--ensemble_size', default=48, type=int, help='ensemble model size')
     parser.add_argument('--meta_class_size', default=12, type=int, help='meta class size')
+    parser.add_argument('--feature_dim', default=512, type=int, help='feature dim')
 
     opt = parser.parse_args()
     # args parse
     DATA_PATH, DATA_NAME, CROP_TYPE, RECALLS = opt.data_path, opt.data_name, opt.crop_type, opt.recalls
-    LOAD_IDS, BATCH_SIZE, NUM_EPOCHS = opt.load_ids, opt.batch_size, opt.num_epochs
-    ENSEMBLE_SIZE, META_CLASS_SIZE = opt.ensemble_size, opt.meta_class_size
-    save_name_pre = '{}_{}_{}_{}'.format(DATA_NAME, CROP_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE)
+    LOAD_IDS, BATCH_SIZE, NUM_EPOCHS, SHARE_TYPE = opt.load_ids, opt.batch_size, opt.num_epochs, opt.share_type
+    ENSEMBLE_SIZE, META_CLASS_SIZE, FEATURE_DIM = opt.ensemble_size, opt.meta_class_size, opt.feature_dim
+    save_name_pre = '{}_{}_{}_{}_{}_{}'.format(DATA_NAME, CROP_TYPE, SHARE_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE,
+                                               FEATURE_DIM)
     recall_ids = [int(k) for k in RECALLS.split(',')]
 
     results = {'train_loss': [], 'train_accuracy': []}
@@ -89,24 +93,23 @@ if __name__ == '__main__':
 
     # dataset loader
     train_data_set = ImageReader(DATA_PATH, DATA_NAME, 'train', CROP_TYPE, ENSEMBLE_SIZE, META_CLASS_SIZE, LOAD_IDS)
-    train_data_loader = DataLoader(train_data_set, BATCH_SIZE, shuffle=True, num_workers=8)
+    train_data_loader = DataLoader(train_data_set, BATCH_SIZE, shuffle=True, num_workers=16)
     train_ext_data_set = ImageReader(DATA_PATH, DATA_NAME, 'train_ext', CROP_TYPE)
-    train_ext_data_loader = DataLoader(train_ext_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
+    train_ext_data_loader = DataLoader(train_ext_data_set, BATCH_SIZE, shuffle=False, num_workers=16)
     test_data_set = ImageReader(DATA_PATH, DATA_NAME, 'query' if DATA_NAME == 'isc' else 'test', CROP_TYPE)
-    test_data_loader = DataLoader(test_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
+    test_data_loader = DataLoader(test_data_set, BATCH_SIZE, shuffle=False, num_workers=16)
     eval_dict = {'train': {'data_loader': train_ext_data_loader}, 'test': {'data_loader': test_data_loader}}
     if DATA_NAME == 'isc':
         gallery_data_set = ImageReader(DATA_PATH, DATA_NAME, 'gallery', CROP_TYPE)
-        gallery_data_loader = DataLoader(gallery_data_set, BATCH_SIZE, shuffle=False, num_workers=8)
+        gallery_data_loader = DataLoader(gallery_data_set, BATCH_SIZE, shuffle=False, num_workers=16)
         eval_dict['gallery'] = {'data_loader': gallery_data_loader}
 
     # model setup, model profile, optimizer config and loss definition
-    model = Model(ENSEMBLE_SIZE, META_CLASS_SIZE).cuda()
+    model = Model(ENSEMBLE_SIZE, META_CLASS_SIZE, FEATURE_DIM, SHARE_TYPE).cuda()
     flops, params = profile(model, inputs=(torch.randn(1, 3, 256, 256).cuda(),))
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
     optimizer = Adam(model.parameters(), lr=1e-4)
-    lr_scheduler = MultiStepLR(optimizer, milestones=[int(NUM_EPOCHS * 0.5), int(NUM_EPOCHS * 0.7)], gamma=0.1)
     cel_criterion = CrossEntropyLoss()
 
     best_recall = 0.0
@@ -114,7 +117,6 @@ if __name__ == '__main__':
         train_loss, train_accuracy = train(model, optimizer)
         results['train_loss'].append(train_loss)
         results['train_accuracy'].append(train_accuracy)
-        lr_scheduler.step()
         rank = eval(model, recall_ids)
 
         # save statistics
