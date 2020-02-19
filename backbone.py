@@ -28,7 +28,7 @@ class ConvBNReLU(nn.Sequential):
         super(ConvBNReLU, self).__init__(
             nn.Conv2d(in_planes, out_planes, kernel_size, stride, padding, groups=groups, bias=False),
             nn.BatchNorm2d(out_planes),
-            nn.ReLU6(inplace=True)
+            nn.LeakyReLU(inplace=True)
         )
 
 
@@ -142,15 +142,9 @@ def eca_mobilenet_v2(pretrained=False, last_channel=1280, num_classes=1000):
     model = ECAMobileNetV2(last_channel=last_channel, num_classes=num_classes)
     if pretrained:
         state_dict = torch.load('results/backbone.pth', map_location='cpu')
-        if state_dict['last_conv.0.weight'].size(0) != last_channel:
-            state_dict.pop('last_conv.0.weight')
-            state_dict.pop('last_conv.1.weight')
-            state_dict.pop('last_conv.1.bias')
-            state_dict.pop('last_conv.1.running_mean')
-            state_dict.pop('last_conv.1.running_var')
-            state_dict.pop('last_conv.1.num_batches_tracked')
         if state_dict['classifier.1.weight'].size() != (num_classes, last_channel):
-            state_dict.pop('classifier.1.weight')
-            state_dict.pop('classifier.1.bias')
+            for key in list(state_dict.keys()):
+                if 'last_conv' in key or 'classifier' in key:
+                    state_dict.pop(key)
         model.load_state_dict(state_dict, strict=False)
     return model
