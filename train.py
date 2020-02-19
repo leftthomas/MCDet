@@ -43,8 +43,8 @@ def eval(net, recalls):
             for inputs, labels in tqdm(eval_dict[key]['data_loader'], desc='processing {} data'.format(key)):
                 inputs, labels = inputs.cuda(), labels.cuda()
                 features, out = net(inputs)
-                out = F.normalize(torch.sum(features, dim=1), dim=-1)
-                eval_dict[key]['features'].append(out)
+                features = F.normalize(torch.sum(features, dim=1), dim=-1)
+                eval_dict[key]['features'].append(features)
             eval_dict[key]['features'] = torch.cat(eval_dict[key]['features'], dim=0)
 
     # compute recall metric
