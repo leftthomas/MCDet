@@ -55,8 +55,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">1</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -64,8 +64,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">2</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -73,8 +73,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">4</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -82,8 +82,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">8</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -91,8 +91,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">16</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -100,8 +100,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">32</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -109,8 +109,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">64</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -118,8 +118,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">128</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -127,8 +127,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">256</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">11.18</td>
+      <td align="center">37.12</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>

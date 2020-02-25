@@ -67,7 +67,7 @@ if __name__ == '__main__':
     val_data = get_dataset(data_name, 'val', data_path)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
 
-    model = Model(backbone_type, num_classes=len(train_data.class_to_idx), norm_type=norm_type).cuda()
+    model = Model(data_name, backbone_type, num_classes=len(train_data.class_to_idx), norm_type=norm_type).cuda()
     flops, params = profile(model, inputs=(torch.randn(1, 3, crop_size[data_name][-1],
                                                        crop_size[data_name][-1]).cuda(),))
     flops, params = clever_format([flops, params])
