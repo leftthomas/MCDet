@@ -55,19 +55,19 @@ if __name__ == '__main__':
                         help='Path to dataset, only works for ImageNet')
     parser.add_argument('--backbone_type', default='resnet18', type=str,
                         choices=['resnet18', 'resnet34', 'resnet50', 'resnext50'], help='Backbone type')
-    parser.add_argument('--with_bn', action='store_true', help='Add BN or not')
+    parser.add_argument('--bn_type', type=str, default='bn', choices=['bn', 'in', 'wn'], help='BN type')
     parser.add_argument('--batch_size', type=int, default=256, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', type=int, default=90, help='Number of sweeps over the dataset to train')
 
     args = parser.parse_args()
     data_name, data_path, batch_size, epochs = args.data_name, args.data_path, args.batch_size, args.epochs
-    backbone_type, with_bn = args.backbone_type, args.with_bn
+    backbone_type, bn_type = args.backbone_type, args.bn_type
     train_data = get_dataset(data_name, 'train', data_path)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16, pin_memory=True)
     val_data = get_dataset(data_name, 'val', data_path)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
 
-    model = Model(backbone_type, num_classes=len(train_data.class_to_idx), with_bn=with_bn).cuda()
+    model = Model(backbone_type, num_classes=len(train_data.class_to_idx), bn_type=bn_type).cuda()
     flops, params = profile(model, inputs=(torch.randn(1, 3, crop_size[data_name][-1],
                                                        crop_size[data_name][-1]).cuda(),))
     flops, params = clever_format([flops, params])
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     lr_scheduler = StepLR(optimizer, step_size=30, gamma=0.1)
     loss_criterion = nn.CrossEntropyLoss()
     results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [], 'val_loss': [], 'val_acc@1': [], 'val_acc@5': []}
-    save_name_pre = '{}_{}_{}'.format(data_name, backbone_type, 'bn' if with_bn else 'nbn')
+    save_name_pre = '{}_{}_{}'.format(data_name, backbone_type, bn_type)
     if not os.path.exists('results'):
         os.mkdir('results')
 
