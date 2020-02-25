@@ -56,7 +56,7 @@ if __name__ == '__main__':
     parser.add_argument('--backbone_type', default='resnet18', type=str,
                         choices=['resnet18', 'resnet34', 'resnet50', 'resnext50'], help='Backbone type')
     parser.add_argument('--norm_type', type=str, default='bn', choices=['bn', 'in', 'wn'], help='Norm type')
-    parser.add_argument('--batch_size', type=int, default=256, help='Number of images in each mini-batch')
+    parser.add_argument('--batch_size', type=int, default=32, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', type=int, default=90, help='Number of sweeps over the dataset to train')
 
     args = parser.parse_args()
