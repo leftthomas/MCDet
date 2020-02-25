@@ -45,7 +45,7 @@ NVIDIA Tesla V100 (32G) GPUs.
       <th>Norm Type</th>
       <th>Batch Size</th>
       <th>Params (M)</th>
-      <th>FLOPs (M)</th>
+      <th>FLOPs</th>
       <th>Top1 Acc (%)</th>
       <th>Top5 Acc (%)</th>
     </tr>
@@ -55,8 +55,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">1</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -64,8 +64,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">2</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -73,8 +73,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">4</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -82,8 +82,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">8</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -91,8 +91,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">16</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -100,8 +100,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">32</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -109,8 +109,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">64</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -118,8 +118,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">128</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -127,8 +127,416 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet18</td>
       <td align="center">BN</td>
       <td align="center">256</td>
-      <td align="center">11.18</td>
-      <td align="center">37.12</td>
+      <td align="center">11.17</td>
+      <td align="center">556.67M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">1</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">2</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">4</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">8</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">16</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">32</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">64</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">128</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet18</td>
+      <td align="center">IN</td>
+      <td align="center">256</td>
+      <td align="center">11.16</td>
+      <td align="center">555.44M</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">1</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">2</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">4</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">8</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">16</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">32</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">64</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">128</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">BN</td>
+      <td align="center">256</td>
+      <td align="center">21.28</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">1</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">2</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">4</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">8</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">16</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">32</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">64</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">128</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet34</td>
+      <td align="center">IN</td>
+      <td align="center">256</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">1</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">2</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">4</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">8</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">16</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">32</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">64</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    
+    
+    
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">128</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">BN</td>
+      <td align="center">256</td>
+      <td align="center">23.52</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">1</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">2</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">4</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">8</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">16</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">32</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">64</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">128</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNet50</td>
+      <td align="center">IN</td>
+      <td align="center">256</td>
+      <td align="center">21.27</td>
+      <td align="center">1.16G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
