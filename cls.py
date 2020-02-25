@@ -76,7 +76,7 @@ if __name__ == '__main__':
     lr_scheduler = StepLR(optimizer, step_size=30, gamma=0.1)
     loss_criterion = nn.CrossEntropyLoss()
     results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [], 'val_loss': [], 'val_acc@1': [], 'val_acc@5': []}
-    save_name_pre = '{}_{}_{}'.format(data_name, backbone_type, norm_type)
+    save_name_pre = '{}_{}_{}_{}'.format(data_name, backbone_type, norm_type, batch_size)
     if not os.path.exists('results'):
         os.mkdir('results')
 
