@@ -63,7 +63,7 @@ if __name__ == '__main__':
     data_name, data_path, batch_size, epochs = args.data_name, args.data_path, args.batch_size, args.epochs
     backbone_type, norm_type = args.backbone_type, args.norm_type
     train_data = get_dataset(data_name, 'train', data_path)
-    num_workers = 0 if min(batch_size, 16) < 16 else max(batch_size // 4, 16)
+    num_workers = 0 if min(batch_size, 8) < 8 else min(batch_size // 4, 16)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
     val_data = get_dataset(data_name, 'val', data_path)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
