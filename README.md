@@ -438,9 +438,6 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
-    
-    
-    
     <tr>
       <td align="center">ResNet50</td>
       <td align="center">BN</td>
@@ -463,8 +460,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">1</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -472,8 +469,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">2</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -481,8 +478,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">4</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -490,8 +487,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">8</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -499,8 +496,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">16</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -508,8 +505,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">32</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -517,8 +514,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">64</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -526,8 +523,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">128</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
@@ -535,8 +532,89 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">ResNet50</td>
       <td align="center">IN</td>
       <td align="center">256</td>
-      <td align="center">21.27</td>
-      <td align="center">1.16G</td>
+      <td align="center">23.47</td>
+      <td align="center">1.30G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>   
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">1</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">2</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">4</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">8</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">16</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">32</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">64</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">128</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
+      <td align="center">-</td>
+      <td align="center">-</td>
+    </tr>
+    <tr>
+      <td align="center">ResNeXt50</td>
+      <td align="center">BN</td>
+      <td align="center">256</td>
+      <td align="center">22.99</td>
+      <td align="center">1.35G</td>
       <td align="center">-</td>
       <td align="center">-</td>
     </tr>
