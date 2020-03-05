@@ -138,8 +138,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">1</td>
       <td align="center">11.16</td>
       <td align="center">555.44M</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">85.92</td>
+      <td align="center">99.30</td>
     </tr>
     <tr>
       <td align="center">ResNet18</td>
@@ -300,8 +300,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">1</td>
       <td align="center">21.27</td>
       <td align="center">1.16G</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">84.94</td>
+      <td align="center">99.33</td>
     </tr>
     <tr>
       <td align="center">ResNet34</td>
@@ -462,8 +462,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">1</td>
       <td align="center">23.47</td>
       <td align="center">1.30G</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">52.46</td>
+      <td align="center">93.54</td>
     </tr>
     <tr>
       <td align="center">ResNet50</td>
@@ -471,8 +471,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">2</td>
       <td align="center">23.47</td>
       <td align="center">1.30G</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">55.58</td>
+      <td align="center">94.14</td>
     </tr>
     <tr>
       <td align="center">ResNet50</td>
@@ -633,8 +633,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">2</td>
       <td align="center">22.92</td>
       <td align="center">1.34G</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">87.33</td>
+      <td align="center">99.37</td>
     </tr>
     <tr>
       <td align="center">ResNeXt50</td>
@@ -642,8 +642,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">4</td>
       <td align="center">22.92</td>
       <td align="center">1.34G</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">83.03</td>
+      <td align="center">99.19</td>
     </tr>
     <tr>
       <td align="center">ResNeXt50</td>
@@ -651,8 +651,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">8</td>
       <td align="center">22.92</td>
       <td align="center">1.34G</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">89.51</td>
+      <td align="center">99.62</td>
     </tr>
     <tr>
       <td align="center">ResNeXt50</td>
