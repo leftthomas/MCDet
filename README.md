@@ -624,8 +624,8 @@ NVIDIA Tesla V100 (32G) GPUs.
       <td align="center">1</td>
       <td align="center">22.92</td>
       <td align="center">1.34G</td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td align="center">68.92</td>
+      <td align="center">97.37</td>
     </tr>
     <tr>
       <td align="center">ResNeXt50</td>
