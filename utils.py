@@ -1,27 +1,76 @@
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from torch import nn
+from torch.utils.data import Dataset
 from torchvision import transforms
-from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
-
-rgb_mean = {'cifar10': [0.491, 0.482, 0.447], 'cifar100': [0.507, 0.487, 0.441], 'imagenet': [0.485, 0.456, 0.406]}
-rgb_std = {'cifar10': [0.202, 0.199, 0.201], 'cifar100': [0.267, 0.256, 0.276], 'imagenet': [0.229, 0.224, 0.225]}
-crop_size = {'cifar10': [32, 32], 'cifar100': [32, 32], 'imagenet': [256, 224]}
-dataset = {'cifar10': CIFAR10, 'cifar100': CIFAR100, 'imagenet': ImageFolder}
 
 
-def get_dataset(data_name, data_type='train', data_path=None):
-    if data_type == 'train':
-        transform = transforms.Compose([
-            transforms.RandomResizedCrop(crop_size[data_name][-1]),
-            transforms.RandomHorizontalFlip(p=0.5),
-            transforms.ToTensor(),
-            transforms.Normalize(rgb_mean[data_name], rgb_std[data_name])])
+class ImageReader(Dataset):
+
+    def __init__(self, data_path, data_name, data_type):
+        data_dict = torch.load('{}/{}/uncropped_data_dicts.pth'.format(data_path, data_name))[data_type]
+        self.class_to_idx = dict(zip(sorted(data_dict), range(len(data_dict))))
+        normalize = transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        if data_type == 'train':
+            self.transform = transforms.Compose([transforms.RandomResizedCrop((256, 256)),
+                                                 transforms.RandomHorizontalFlip(), transforms.ToTensor(), normalize])
+        else:
+            self.transform = transforms.Compose([transforms.Resize((288, 288)), transforms.CenterCrop(256),
+                                                 transforms.ToTensor(), normalize])
+        self.images, self.labels = [], []
+        for label, image_list in data_dict.items():
+            self.images += image_list
+            self.labels += [self.class_to_idx[label]] * len(image_list)
+
+    def __getitem__(self, index):
+        path, target = self.images[index], self.labels[index]
+        img = Image.open(path).convert('RGB')
+        img = self.transform(img)
+        return img, target
+
+    def __len__(self):
+        return len(self.images)
+
+
+def set_bn_eval(m):
+    classname = m.__class__.__name__
+    if classname.find('BatchNorm2d') != -1:
+        m.eval()
+
+
+def recall(feature_vectors, feature_labels, rank, gallery_vectors=None, gallery_labels=None, binary=False):
+    num_features = len(feature_labels)
+    feature_labels = torch.tensor(feature_labels, device=feature_vectors.device)
+    gallery_vectors = feature_vectors if gallery_vectors is None else gallery_vectors
+
+    sim_matrix = torch.mm(feature_vectors, gallery_vectors.t().contiguous())
+    if binary:
+        sim_matrix = sim_matrix / feature_vectors.size(-1)
+
+    if gallery_labels is None:
+        sim_matrix.fill_diagonal_(0)
+        gallery_labels = feature_labels
     else:
-        transform = transforms.Compose([
-            transforms.Resize(crop_size[data_name][0]),
-            transforms.CenterCrop(crop_size[data_name][-1]),
-            transforms.ToTensor(),
-            transforms.Normalize(rgb_mean[data_name], rgb_std[data_name])])
+        gallery_labels = torch.tensor(gallery_labels, device=feature_vectors.device)
 
-    if data_name == 'imagenet':
-        return dataset[data_name](root='{}/{}'.format(data_path, data_type), transform=transform)
-    else:
-        return dataset[data_name](root='data', train=data_type == 'train', transform=transform, download=True)
+    idx = sim_matrix.topk(k=rank[-1], dim=-1, largest=True)[1]
+    acc_list = []
+    for r in rank:
+        correct = (gallery_labels[idx[:, 0:r]] == feature_labels.unsqueeze(dim=-1)).any(dim=-1).float()
+        acc_list.append((torch.sum(correct) / num_features).item())
+    return acc_list
+
+
+class LabelSmoothingCrossEntropyLoss(nn.Module):
+    def __init__(self, smoothing=0.0, temperature=1.0):
+        super().__init__()
+        self.smoothing = smoothing
+        self.temperature = temperature
+
+    def forward(self, x, target):
+        log_probs = F.log_softmax(x / self.temperature, dim=-1)
+        nll_loss = -log_probs.gather(dim=-1, index=target.unsqueeze(dim=-1)).squeeze(dim=-1)
+        smooth_loss = -log_probs.mean(dim=-1)
+        loss = (1.0 - self.smoothing) * nll_loss + self.smoothing * smooth_loss
+        return loss.mean()
