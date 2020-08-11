@@ -1,192 +1,99 @@
-# ProxyNet
-A PyTorch implementation of ProxyNet based on the paper [Image Retrieval with Running Proxies]().
-
-![Network Architecture](results/structure.png)
+# RepPoints
+A PyTorch implementation of RepPoints. 
 
 ## Requirements
 - [Anaconda](https://www.anaconda.com/download/)
-- [PyTorch](https://pytorch.org)
+- PyTorch
 ```
-conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
+conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
 ```
-
-## Datasets
-[CARS196](http://ai.stanford.edu/~jkrause/cars/car_dataset.html), [CUB200-2011](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html), 
-[Standard Online Products](http://cvgl.stanford.edu/projects/lifted_struct/) and 
-[In-shop Clothes](http://mmlab.ie.cuhk.edu.hk/projects/DeepFashion/InShopRetrieval.html) are used in this repo.
-
-You should download these datasets by yourself, and extract them into `${data_path}` directory, make sure the dir names are 
-`car`, `cub`, `sop` and `isc`. Then run `data_utils.py` to preprocess them.
-
-## Usage
-### Train Model
+- mmcv-full
 ```
-python train.py --feature_dim 1024
-optional arguments:
---data_path                   datasets path [default value is '/home/data']
---data_name                   dataset name [default value is 'car'](choices=['car', 'cub', 'sop', 'isc'])
---backbone_type               backbone network type, * means remove downsample of stage 4 [default value is 'resnet50'](choices=['resnet50', 'seresnet50', 'resnet50*', 'seresnet50*'])
---feature_dim                 feature dim [default value is 1536]
---remove_common               remove common features in the training period or not [default value is False]
---temperature                 temperature scale used in temperature softmax [default value is 1.0]
---smoothing                   smoothing value used in label smoothing [default value is 0.0]
---recalls                     selected recall [default value is '1,2,4,8']
---batch_size                  training batch size [default value is 128]
---num_epochs                  training epoch number [default value is 20]
+pip install mmcv-full
+```
+- mmdetection
+```
+pip install -r requirements/build.txt
+pip install -v -e .
 ```
 
-### Test Model
-```
-python test.py --retrieval_num 10
-optional arguments:
---query_img_name              query image name [default value is '/home/data/car/uncropped/008055.jpg']
---data_base                   queried database [default value is 'car_resnet50_1536_False_1.0_0.0_data_base.pth']
---retrieval_num               retrieval number [default value is 8]
+### Train
+```shell
+./tools/dist_train.sh configs/reppoints_v2/reppoints_v2_r50_fpn_giou_1x_coco.py 8
 ```
 
-## Benchmarks
-The models are trained on one NVIDIA Tesla V100 (32G) GPU.
+### Inference
+```shell
+./tools/dist_test.sh configs/reppoints_v2/reppoints_v2_r50_fpn_giou_1x_coco.py work_dirs/reppoints_v2_r50_fpn_giou_1x_coco/epoch_12.pth 8 --eval bbox
+```
 
-### CARS196 (Dense | Binary)
-<table>
-  <thead>
-    <tr>
-      <th>Backbone</th>
-      <th>R@1</th>
-      <th>R@2</th>
-      <th>R@4</th>
-      <th>R@8</th>
-      <th>Download Link</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center">ResNet50</td>
-      <td align="center">86.1% | 91.4%</td>
-      <td align="center">91.9% | 95.0%</td>
-      <td align="center">95.4% | 97.1%</td>
-      <td align="center">97.4% | 98.3%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/1Wld7E02CaRgaZi4cv4I7dQ">gcmw</a> | <a href="https://pan.baidu.com/s/15jsM45iZY-u08Y39VkmRSQ">fygj</a></td>
-    </tr>
-    <tr>
-      <td align="center">SEResNet50</td>
-      <td align="center">85.2% | 90.6%</td>
-      <td align="center">91.6% | 94.6%</td>
-      <td align="center">95.2% | 96.9%</td>
-      <td align="center">97.3% | 98.2%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/1Wld7E02CaRgaZi4cv4I7dQ">gcmw</a> | <a href="https://pan.baidu.com/s/15jsM45iZY-u08Y39VkmRSQ">fygj</a></td>
-    </tr>
-  </tbody>
-</table>
+## Main Results
 
-### CUB200 (Dense | Binary)
-<table>
-  <thead>
-    <tr>
-      <th>Backbone</th>
-      <th>R@1</th>
-      <th>R@2</th>
-      <th>R@4</th>
-      <th>R@8</th>
-      <th>Download Link</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center">ResNet50</td>
-      <td align="center">64.1% | 68.4%</td>
-      <td align="center">75.4% | 79.9%</td>
-      <td align="center">83.6% | 87.6%</td>
-      <td align="center">90.6% | 92.9%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/19Hmibn-RbxAUTnOEPxxafw">qkjs</a> | <a href="https://pan.baidu.com/s/101_f16MD7y2cLuC6RRpJBA">h37y</a></td>
-    </tr>
-    <tr>
-      <td align="center">SEResNet50</td>
-      <td align="center">62.7% | 66.8%</td>
-      <td align="center">74.4% | 78.7%</td>
-      <td align="center">82.8% | 87.2%</td>
-      <td align="center">90.0% | 92.7%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/19Hmibn-RbxAUTnOEPxxafw">qkjs</a> | <a href="https://pan.baidu.com/s/101_f16MD7y2cLuC6RRpJBA">h37y</a></td>
-    </tr>
-  </tbody>
-</table>
+### RepPoints V2
 
-### SOP (Dense | Binary)
-<table>
-  <thead>
-    <tr>
-      <th>Backbone</th>
-      <th>R@1</th>
-      <th>R@10</th>
-      <th>R@100</th>
-      <th>R@1000</th>
-      <th>Download Link</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center">ResNet50</td>
-      <td align="center">78.7%</td>
-      <td align="center">91.1%</td>
-      <td align="center">96.5%</td>
-      <td align="center">98.9%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/1izrEJUTHgB7Yafa6d938MA">3qr7</a></td>
-    </tr>
-    <tr>
-      <td align="center">SEResNet50</td>
-      <td align="center">77.8%</td>
-      <td align="center">90.7%</td>
-      <td align="center">96.3%</td>
-      <td align="center">98.8%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/1izrEJUTHgB7Yafa6d938MA">3qr7</a></td>
-    </tr>
-  </tbody>
-</table>
+**ResNe(X)ts:**
 
-### In-shop (Dense | Binary)
-<table>
-  <thead>
-    <tr>
-      <th>Backbone</th>
-      <th>R@1</th>
-      <th>R@10</th>
-      <th>R@20</th>
-      <th>R@30</th>
-      <th>R@40</th>
-      <th>R@50</th>
-      <th>Download Link</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center">ResNet50</td>
-      <td align="center">88.4%</td>
-      <td align="center">97.5%</td>
-      <td align="center">98.3%</td>
-      <td align="center">98.7%</td>
-      <td align="center">98.9%</td>
-      <td align="center">99.0%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/1MW1Snt079y0wtPMA3Eeyhg">5wja</a></td>
-    </tr>
-    <tr>
-      <td align="center">SEResNet50</td>
-      <td align="center">87.6%</td>
-      <td align="center">97.4%</td>
-      <td align="center">98.3%</td>
-      <td align="center">98.6%</td>
-      <td align="center">98.7%</td>
-      <td align="center">98.9%</td>
-      <td align="center"><a href="https://pan.baidu.com/s/1MW1Snt079y0wtPMA3Eeyhg">5wja</a></td>
-    </tr>
-  </tbody>
-</table>
+Model | Multi-scale training | AP (minival) | AP (test-dev) | Link 
+--- |:---:|:---:|:---:|:---:
+RepPoints_V2_R_50_FPN_1x | No | 40.9 | --- | [Google](https://drive.google.com/file/d/1QBYTLITOJG5dSjU35YewE9efSCH_VGg2/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1ZvJ3gk_FVOVHmvmy87cr_w) / [Log](https://drive.google.com/file/d/1Ra2XC-Zjfpx6YG91ZRY_8qI_XnDe_Txu/view?usp=sharing)
+RepPoints_V2_R_50_FPN_GIoU_1x | No  | 41.1 | 41.3 | [Google](https://drive.google.com/file/d/1lbYUpvA33GHaEImKRhbR7H5S36Dxubcf/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1kyt5YNWO-gg_W4iUuwZxiw) / [Log](https://drive.google.com/file/d/1yDwNToYAZdPWTs4vxzbBNqRCLIrRxx_H/view?usp=sharing)
+RepPoints_V2_R_50_FPN_GIoU_2x | Yes  | 43.9 | 44.4 | [Google](https://drive.google.com/file/d/13FfoXOfTsO-eLTcO__WXUxQRRWNzAdrL/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1QAvjzGI1zrnockXX6cZrZA) / [Log](https://drive.google.com/file/d/1yDwNToYAZdPWTs4vxzbBNqRCLIrRxx_H/view?usp=sharing)
+RepPoints_V2_R_101_FPN_GIoU_2x | Yes  | 45.8 | 46 | [Google](https://drive.google.com/file/d/1MUb1Y1_OoqhwFkvdyE6QthbUc1l2ixYS/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1YNxbnmeq20mVef5ZAlMTxQ) / [Log](https://drive.google.com/file/d/1m5BM1PWXWKwfsvEc54b0fCcMIlXKPFG_/view?usp=sharing)
+RepPoints_V2_R_101_FPN_dcnv2_GIoU_2x | Yes  | 47.7 | 48.1 | [Google](https://drive.google.com/file/d/1VaBAPWOzku0tfpUWa5FmOsu_Fn_3UWaY/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/14V2hz6VrXJv_acQ-SQlBUg) / [Log](https://drive.google.com/file/d/1f_WwyNFlqvCSU-P723b-LHG1kpRhddns/view?usp=sharing)
+RepPoints_V2_X_101_FPN_GIoU_2x | Yes  | 47.3 | 47.8 | [Google](https://drive.google.com/file/d/1rThw_7yXi185-VXfeXY81iJNwoAywQVA/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1Vp4vtkSSfAbkI1_--jDQ5g) / [Log](https://drive.google.com/file/d/13Nj__4nvZEEJtwNhvIcKjDwbmu5eQZoo/view?usp=sharing)
+RepPoints_V2_X_101_FPN_dcnv2_GIoU_2x | Yes  | 49.3 | 49.4 | [Google](https://drive.google.com/file/d/1db6cK7pEjRgN8QjaGV8OnZYp35nuxd7G/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1idrD8kmgYTP_q5_mSSlpTQ) / [Log](https://drive.google.com/file/d/1DlCYQiWUanPVwyowjFLrgKCYz57EJE2S/view?usp=sharing)
 
-## Results
+**MobileNets**:
 
-### CAR/CUB
+Model | Multi-scale training | AP (minival) | AP (test-dev) | Link
+--- |:---:|:---:|:---:|:---:
+RepPoints_V2_MNV2_c128_FPN_2x | Yes | 36.8 | --- | [Google](https://drive.google.com/file/d/1mnoXOyzp6dCYbQx7rKbzjKlc0RzitOpV/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1_sEMkhDjYjhJwMSiNNoYdg) / [Log](https://drive.google.com/file/d/11UQGvOuOykFD0iW3xz1DsqJSwJaw2tmw/view?usp=sharing)
+RepPoints_V2_MNV2_FPN_2x | Yes | 39.4 | --- | [Google](https://drive.google.com/file/d/1xk8jGZiRs2iskywf3hB6tINMK_3lDL3u/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1OdiEtxWe5f45GaaprITdrA) / [Log](https://drive.google.com/file/d/1A1ldy4HzPStKjz0Xm96sPnyB-NS2wzMk/view?usp=sharing)
 
-![CAR/CUB](results/car_cub.png)
+### RepPoints V1
 
-### SOP/ISC
+**ResNe(X)ts:**
 
-![SOP/ISC](results/sop_isc.png)
+Model | Multi-scale training | AP (minival) | AP (test-dev) | Link
+--- |:---:|:---:|:---:|:---:
+RepPoints_V1_R_50_FPN_1x | No | 38.8 | --- | [Google](https://drive.google.com/file/d/1DMoTicyL5FejCL3042rwZWPojTC2-qRH/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1t4zaVFCH0A35xEDXo3RUMQ) / [Log](https://drive.google.com/file/d/1Oq-3DFnfbJ6F5doJobuhZU9y7BkRC0NH/view?usp=sharing)
+RepPoints_V1_R_50_FPN_GIoU_1x | No  | 39.9 | ---| [Google](https://drive.google.com/file/d/1IJp3bBCrRuDDQcxjwoUenBuA-KSzYWkf/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1swvcTxgiUWSRCOSKOJ7Mjg) / [Log](https://drive.google.com/file/d/1bRCfSQPYFjxXIari9F8AWXOYUUS4VVJg/view?usp=sharing)
+RepPoints_V1_R_50_FPN_GIoU_2x | Yes  | 42.7 | --- | [Google](https://drive.google.com/file/d/1tZpfOGmxzToaikaFdpyhjCjm8ltOJaYY/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1pFvleWnZjVsFeHJjiX3dpw) / [Log](https://drive.google.com/file/d/1iBSrXp4ngug9jaWb1gndSj4NQQQzbpAC/view?usp=sharing)
+RepPoints_V1_R_101_FPN_GIoU_2x | Yes  | 44.4 | --- | [Google](https://drive.google.com/file/d/1YiR4m8GNWQ472tgGXOdeaWbnS2KiAR4z/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1BhVjPvBJaWM3Okq1Ytk8Iw) / [Log](https://drive.google.com/file/d/1QhN3vedurGiRAl6aiSwtGNwxN3TAOXuP/view?usp=sharing)
+RepPoints_V1_R_101_FPN_dcnv2_GIoU_2x | Yes  | 46.6 | --- | [Google](https://drive.google.com/file/d/112jG1a2TUnABqCR1ccKrIzAE6_8P3LAe/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/18e0zGQah6aqCY2qIXe88Ew) / [Log](https://drive.google.com/file/d/1ut23n60vRY0f8VF97bgh2KWN05rmto9N/view?usp=sharing)
+RepPoints_V1_X_101_FPN_GIoU_2x | Yes  | 46.3 | --- | [Google](https://drive.google.com/file/d/1UohtogF-znE0NnqXHSrcGBuE9B3pNaDr/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1qbCyHBZksS_l-eXH8Wh5Ug) / [Log](https://drive.google.com/file/d/1wOBP8-oBg53llJOfspddecA5NNpdcRix/view?usp=sharing)
+RepPoints_V1_X_101_FPN_dcnv2_GIoU_2x | Yes  | 48.3 | --- | [Google](https://drive.google.com/file/d/14oSaFilmT6EMTkAuP23OyQtLbWRB0BiN/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1Xl5VUG7z7IQlz6F8267f6A) / [Log](https://drive.google.com/file/d/14u0m5eFdLFRGJT--mx7wzsdIVNb8Atu8/view?usp=sharing)
+
+**MobileNets**:
+
+Model | Multi-scale training | AP (minival) | AP (test-dev) | Link
+--- |:---:|:---:|:---:|:---:
+RepPoints_V1_MNV2_c128_FPN_2x | Yes | 35.7 | --- | [Google](https://drive.google.com/file/d/14l_m3lLacfw7mTafv7cuvczhkWeF2cn4/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1hHeV8KZLdtLNvVYRl-najw) / [Log](https://drive.google.com/file/d/1pg1gW3ajOqgB4oLmEsiKJ2cReAIdxRkp/view?usp=sharing)
+RepPoints_V1_MNV2_FPN_2x | Yes | 37.8 | --- | [Google](https://drive.google.com/file/d/1Ex6us97waqWP25H20xBZZEfQXfI8mfjW/view?usp=sharing) / [Baidu](https://pan.baidu.com/s/1AyibFbRgSc8bug0KZDO1Yw) / [Log](https://drive.google.com/file/d/1BanM614yhFaxtLeSI_vYbtTjsarj-Xxl/view?usp=sharing)
+
+[1] *GIoU means using GIoU loss instead of smooth-l1 loss for the regression branch, which we find improves the final performance.* \
+[2] *X-101 denotes ResNeXt-101-64x4d.* \
+[3] *1x, 2x, 3x mean the model is trained for 12, 24 and 36 epochs, respectively.* \
+[4] *For multi-scale training, the shorter side of images is randomly chosen from [480, 960].* \
+[5] *`dcnv2` denotes deformable convolutional networks v2.* \
+[6] *c128 denotes the model has 128 (instead of 256) channels in towers.*\
+[7] *We use syncbn, GIoU loss for the regression branch to train mobilenet v2 models by default.*
+
+## Citation
+```
+@article{chen2020reppointsv2,
+  title={RepPoints V2: Verification Meets Regression for Object Detection},
+  author={Chen, Yihong and Zhang, Zheng and Cao, Yue and Wang, Liwei and Lin, Stephen and Hu, Han},
+  journal={arXiv preprint arXiv:2007.08508},
+  year={2020}
+}
+
+@inproceedings{yang2019reppoints,
+  title={RepPoints: Point Set Representation for Object Detection},
+  author={Yang, Ze and Liu, Shaohui and Hu, Han and Wang, Liwei and Lin, Stephen},
+  booktitle={The IEEE International Conference on Computer Vision (ICCV)},
+  month={Oct},
+  year={2019}
+}
+```
+

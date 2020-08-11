@@ -1,0 +1,7 @@
+matplotlib
+numpy
+scipy
+six
+terminaltables
+torch>=1.3
+torchvision
