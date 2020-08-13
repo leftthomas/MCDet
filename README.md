@@ -19,12 +19,12 @@ pip install -v -e .
 
 ### Train
 ```shell
-./tools/dist_train.sh configs/reppoints_v2/reppoints_v2_r50_fpn_giou_1x_coco.py 8
+./tools/dist_train.sh configs/models/reppoints_v2_r50_fpn_giou_1x_coco.py 8
 ```
 
 ### Inference
 ```shell
-./tools/dist_test.sh configs/reppoints_v2/reppoints_v2_r50_fpn_giou_1x_coco.py work_dirs/reppoints_v2_r50_fpn_giou_1x_coco/epoch_12.pth 8 --eval bbox
+./tools/dist_test.sh configs/models/reppoints_v2_r50_fpn_giou_1x_coco.py work_dirs/reppoints_v2_r50_fpn_giou_1x_coco/epoch_12.pth 8 --eval bbox
 ```
 
 ## Main Results
