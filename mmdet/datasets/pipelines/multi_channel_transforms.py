@@ -1,10 +1,13 @@
+import os.path as osp
+
 import mmcv
 import numpy as np
 from mmcv.parallel import DataContainer as DC
 
 from . import to_tensor
-from .formating import DefaultFormatBundle
+from .formating import DefaultFormatBundle, ImageToTensor
 from .formating_reppointsv2 import RPDV2FormatBundle
+from .loading import LoadImageFromFile
 from .transforms import Resize, RandomFlip, Normalize, Pad
 from ..builder import PIPELINES
 
@@ -18,6 +21,35 @@ try:
 except ImportError:
     albumentations = None
     Compose = None
+
+
+@PIPELINES.register_module()
+class MultiChannelLoadImageFromFile(LoadImageFromFile):
+
+    def __call__(self, results):
+        if self.file_client is None:
+            self.file_client = mmcv.FileClient(**self.file_client_args)
+
+        if results['img_prefix'] is not None:
+            filename = [osp.join(results['img_prefix'], filename) for filename in results['img_info']['filename']]
+        else:
+            filename = results['img_info']['filename']
+
+        img = []
+        for name in filename:
+            img_bytes = self.file_client.get(name)
+            img.append(mmcv.imfrombytes(img_bytes, flag=self.color_type))
+        img = np.stack(img, axis=-1)
+        if self.to_float32:
+            img = img.astype(np.float32)
+
+        results['filename'] = filename
+        results['ori_filename'] = results['img_info']['filename']
+        results['img'] = img
+        results['img_shape'] = img.shape
+        results['ori_shape'] = img.shape
+        results['img_fields'] = ['img']
+        return results
 
 
 @PIPELINES.register_module()
@@ -123,8 +155,8 @@ class MultiChannelPad(Pad):
 
 @PIPELINES.register_module()
 class MultiChannelRPDV2FormatBundle(RPDV2FormatBundle):
-    def __call__(self, results):
 
+    def __call__(self, results):
         if 'img' in results:
             img = results['img']
             # add default meta keys
@@ -175,4 +207,17 @@ class MultiChannelDefaultFormatBundle(DefaultFormatBundle):
         if 'gt_semantic_seg' in results:
             results['gt_semantic_seg'] = DC(
                 to_tensor(results['gt_semantic_seg'][None, ...]), stack=True)
+        return results
+
+
+@PIPELINES.register_module()
+class MultiChannelImageToTensor(ImageToTensor):
+
+    def __call__(self, results):
+        for key in self.keys:
+            img = results[key]
+            if len(img.shape) < 3:
+                img = np.expand_dims(img, -1)
+            img = img.reshape((img.shape[0], img.shape[1], -1))
+            results[key] = to_tensor(img.transpose(2, 0, 1))
         return results

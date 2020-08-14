@@ -8,7 +8,8 @@ from .loading import (LoadAnnotations, LoadImageFromFile,
                       LoadMultiChannelImageFromFiles, LoadProposals)
 from .loading_reppointsv2 import LoadRPDV2Annotations, LoadDenseRPDV2Annotations
 from .multi_channel_transforms import (MultiChannelResize, MultiChannelRandomFlip, MultiChannelNormalize,
-                                       MultiChannelPad, MultiChannelRPDV2FormatBundle, MultiChannelDefaultFormatBundle)
+                                       MultiChannelPad, MultiChannelRPDV2FormatBundle, MultiChannelDefaultFormatBundle,
+                                       MultiChannelImageToTensor, MultiChannelLoadImageFromFile)
 from .test_time_aug import MultiScaleFlipAug
 from .transforms import (Albu, Expand, MinIoURandomCrop, Normalize, Pad,
                          PhotoMetricDistortion, RandomCenterCropPad,
@@ -22,5 +23,6 @@ __all__ = [
     'MinIoURandomCrop', 'Expand', 'PhotoMetricDistortion', 'Albu',
     'InstaBoost', 'RandomCenterCropPad', 'AutoAugment', 'LoadRPDV2Annotations', 'RPDV2FormatBundle',
     'LoadDenseRPDV2Annotations', 'MultiChannelResize', 'MultiChannelRandomFlip', 'MultiChannelNormalize',
-    'MultiChannelPad', 'MultiChannelRPDV2FormatBundle', 'MultiChannelDefaultFormatBundle'
+    'MultiChannelPad', 'MultiChannelRPDV2FormatBundle', 'MultiChannelDefaultFormatBundle', 'MultiChannelImageToTensor',
+    'MultiChannelLoadImageFromFile'
 ]

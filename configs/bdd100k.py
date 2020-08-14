@@ -2,7 +2,7 @@ dataset_type = 'BDD100KDataset'
 data_root = 'data/bdd100k/'
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
-    dict(type='LoadMultiChannelImageFromFiles'),
+    dict(type='MultiChannelLoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='MultiChannelResize', img_scale=(1333, 800), keep_ratio=True),
     dict(type='MultiChannelRandomFlip', flip_ratio=0.5),
@@ -12,7 +12,7 @@ train_pipeline = [
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
 ]
 test_pipeline = [
-    dict(type='LoadMultiChannelImageFromFiles'),
+    dict(type='MultiChannelLoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
         img_scale=(1333, 800),
@@ -22,7 +22,7 @@ test_pipeline = [
             dict(type='MultiChannelRandomFlip'),
             dict(type='MultiChannelNormalize', **img_norm_cfg),
             dict(type='MultiChannelPad', size_divisor=32),
-            dict(type='ImageToTensor', keys=['img']),
+            dict(type='MultiChannelImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img']),
         ])
 ]
