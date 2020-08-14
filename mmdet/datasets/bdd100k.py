@@ -63,7 +63,7 @@ class BDD100KDataset(CocoDataset):
     def pre_pipeline(self, results):
         """Load real and gen images"""
          # fix bug about cache
-        if not isinstance(img_info['filename'], list):
+        if not isinstance(results['img_info']['filename'], list):
             results['img_info']['filename'] = ['real/' + results['img_info']['filename'],
                                                'gen/' + results['img_info']['filename']]
         results['img_prefix'] = self.img_prefix
