@@ -7,7 +7,7 @@ train_pipeline = [
     dict(type='MultiChannelResize', img_scale=(1333, 800), keep_ratio=True),
     dict(type='MultiChannelRandomFlip', flip_ratio=0.5),
     dict(type='MultiChannelNormalize', **img_norm_cfg),
-    dict(type='Pad', size_divisor=32),
+    dict(type='MultiChannelPad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
 ]
@@ -21,7 +21,7 @@ test_pipeline = [
             dict(type='MultiChannelResize', keep_ratio=True),
             dict(type='MultiChannelRandomFlip'),
             dict(type='MultiChannelNormalize', **img_norm_cfg),
-            dict(type='Pad', size_divisor=32),
+            dict(type='MultiChannelPad', size_divisor=32),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img']),
         ])

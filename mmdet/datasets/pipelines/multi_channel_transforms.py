@@ -1,7 +1,7 @@
 import mmcv
 import numpy as np
 
-from .transforms import Resize, RandomFlip, Normalize
+from .transforms import Resize, RandomFlip, Normalize, Pad
 from ..builder import PIPELINES
 
 try:
@@ -38,13 +38,14 @@ class MultiChannelResize(Resize):
                     img, w_scale, h_scale = mmcv.imresize(
                         results[key][:, :, :, index], results['scale'], return_scale=True)
                     images.append(img)
-            results[key] = np.stack(images, axis=-1)
+            images = np.stack(images, axis=-1)
+            results[key] = images
 
             scale_factor = np.array([w_scale, h_scale, w_scale, h_scale],
                                     dtype=np.float32)
-            results['img_shape'] = img.shape
+            results['img_shape'] = images.shape
             # in case that there is no padding
-            results['pad_shape'] = img.shape
+            results['pad_shape'] = images.shape
             results['scale_factor'] = scale_factor
             results['keep_ratio'] = self.keep_ratio
 
@@ -94,3 +95,23 @@ class MultiChannelNormalize(Normalize):
         results['img_norm_cfg'] = dict(
             mean=self.mean, std=self.std, to_rgb=self.to_rgb)
         return results
+
+
+@PIPELINES.register_module()
+class MultiChannelPad(Pad):
+
+    def _pad_img(self, results):
+        for key in results.get('img_fields', ['img']):
+            images, img_num = [], results[key].shape[-1]
+            if self.size is not None:
+                for index in range(img_num):
+                    images.append(mmcv.impad(results[key][:, :, :, index], self.size, self.pad_val))
+            elif self.size_divisor is not None:
+                for index in range(img_num):
+                    images.append(mmcv.impad_to_multiple(
+                        results[key][:, :, :, index], self.size_divisor, pad_val=self.pad_val))
+            images = np.stack(images, axis=-1)
+            results[key] = images
+        results['pad_shape'] = images.shape
+        results['pad_fixed_size'] = self.size
+        results['pad_size_divisor'] = self.size_divisor
