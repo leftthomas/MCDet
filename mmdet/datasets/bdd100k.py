@@ -45,10 +45,9 @@ class BDD100KDataset(CocoDataset):
             gt_bboxes_ignore = np.array(gt_bboxes_ignore, dtype=np.float32)
         else:
             gt_bboxes_ignore = np.zeros((0, 4), dtype=np.float32)
-
+        # fix bug about cache
         if isinstance(img_info['filename'], list):
-            for index in range(len(img_info['filename'])):
-                seg_map = img_info['filename'][index].replace('jpg', 'png')
+            seg_map = img_info['filename'][0].split('/')[-1].replace('jpg', 'png')
         else:
             seg_map = img_info['filename'].replace('jpg', 'png')
 

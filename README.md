@@ -18,6 +18,9 @@ pip install -r requirements/build.txt
 pip install "git+https://github.com/open-mmlab/cocoapi.git#subdirectory=pycocotools"
 pip install -v -e .  # or "python setup.py develop"
 ```
+#### Config
+Add these files in this repo to `mmdet` dir, and use these files in `configs` dir to train or test.
+
 #### Train
 ```shell
 ./tools/dist_train.sh configs/reppoints_v2/reppoints_v2_r50_fpn_1x_bdd100k.py 8
@@ -29,8 +32,6 @@ pip install -v -e .  # or "python setup.py develop"
 
 ## Contribution
 Any contributions to Multiple Channel MMDetection Library are welcome!
-
-1.config下添加一个`bdd100k.py`的配置文件；
 
 2.mmdet/datasets下添加一个`bdd100k.py`的实现文件；
 
