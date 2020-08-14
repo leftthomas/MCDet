@@ -1,7 +1,7 @@
 import mmcv
 import numpy as np
 
-from .transforms import Resize
+from .transforms import Resize, RandomFlip
 from ..builder import PIPELINES
 
 try:
@@ -47,3 +47,36 @@ class MultiChannelResize(Resize):
             results['pad_shape'] = img.shape
             results['scale_factor'] = scale_factor
             results['keep_ratio'] = self.keep_ratio
+
+
+@PIPELINES.register_module()
+class MultiChannelRandomFlip(RandomFlip):
+
+    def __call__(self, results):
+        if 'flip' not in results:
+            flip = True if np.random.rand() < self.flip_ratio else False
+            results['flip'] = flip
+        if 'flip_direction' not in results:
+            results['flip_direction'] = self.direction
+        if results['flip']:
+            # flip image
+            for key in results.get('img_fields', ['img']):
+                images, img_num = [], results[key].shape[-1]
+                for index in range(img_num):
+                    images.append(mmcv.imflip(
+                        results[key][:, :, :, index], direction=results['flip_direction']))
+                results[key] = np.stack(images, axis=-1)
+            # flip bboxes
+            for key in results.get('bbox_fields', []):
+                results[key] = self.bbox_flip(results[key],
+                                              results['img_shape'],
+                                              results['flip_direction'])
+            # flip masks
+            for key in results.get('mask_fields', []):
+                results[key] = results[key].flip(results['flip_direction'])
+
+            # flip segs
+            for key in results.get('seg_fields', []):
+                results[key] = mmcv.imflip(
+                    results[key], direction=results['flip_direction'])
+        return results
