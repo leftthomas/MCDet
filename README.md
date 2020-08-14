@@ -19,7 +19,9 @@ pip install "git+https://github.com/open-mmlab/cocoapi.git#subdirectory=pycocoto
 pip install -v -e .  # or "python setup.py develop"
 ```
 #### Config
-Add these files in this repo to `mmdet` dir, and use these files in `configs` dir to train or test.
+Copy these files in this repo to corresponding dirs, and use these files in `configs` dir to train or test.
+Pay attention to the config option:
+* `model-->backbone-->in_channels=6`
 
 #### Train
 ```shell
@@ -30,16 +32,7 @@ Add these files in this repo to `mmdet` dir, and use these files in `configs` di
 ./tools/dist_test.sh configs/reppoints_v2/reppoints_v2_r50_fpn_1x_bdd100k.py work_dirs/reppoints_v2_r50_fpn_1x_bdd100k/epoch_12.pth 8 --eval bbox
 ```
 
-## Contribution
-Any contributions to Multiple Channel MMDetection Library are welcome!
-
-2.mmdet/datasets下添加一个`bdd100k.py`的实现文件；
-
-3.mmdet/datasets/__init__.py添加`BDD100KDataset`;
-
-4.mmdet/datasets/pipelines下添加一个`multi_channel_transforms.py`的实现文件;
-
-5.mmdet/datasets/pipelines/__init__.py添加以下`transforms`:
+## Features
 * `LoadImageFromFile`--->`MultiChannelLoadImageFromFile`;
 * `Resize`--->`MultiChannelResize`;
 * `RandomFlip`--->`MultiChannelRandomFlip`;
@@ -49,6 +42,5 @@ Any contributions to Multiple Channel MMDetection Library are welcome!
 * `DefaultFormatBundle`--->`MultiChannelDefaultFormatBundle`;
 * `ImageToTensor`--->`MultiChannelImageToTensor`;
 
-6.修改原有config下的配置文件
-* 修改数据路径`data_root`;
-* `model-->backbone-->in_channels=6`
+## Contribution
+Any contributions to Multiple Channel MMDetection Library are welcome!
