@@ -8,7 +8,7 @@ train_pipeline = [
     dict(type='MultiChannelRandomFlip', flip_ratio=0.5),
     dict(type='MultiChannelNormalize', **img_norm_cfg),
     dict(type='MultiChannelPad', size_divisor=32),
-    dict(type='DefaultFormatBundle'),
+    dict(type='MultiChannelDefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
 ]
 test_pipeline = [
