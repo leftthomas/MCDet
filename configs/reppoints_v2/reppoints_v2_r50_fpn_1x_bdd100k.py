@@ -1,7 +1,8 @@
-_base_ = ['./bdd100k.py', './schedule_1x.py', './default_runtime.py']
+_base_ = ['../_base_/datasets/bdd100k.py', '../_base_/schedules/schedule_1x.py',
+          '../_base_/default_runtime.py']
 norm_cfg = dict(type='GN', num_groups=32, requires_grad=True)
 model = dict(
-    type='RepPointsDetector',
+    type='RepPointsV2Detector',
     pretrained='torchvision://resnet50',
     backbone=dict(
         type='ResNet',
@@ -22,12 +23,16 @@ model = dict(
         num_outs=5,
         norm_cfg=norm_cfg),
     bbox_head=dict(
-        type='RepPointsHead',
+        type='RepPointsV2Head',
         num_classes=80,
         in_channels=256,
         feat_channels=256,
         point_feat_channels=256,
         stacked_convs=3,
+        shared_stacked_convs=1,
+        first_kernel_size=3,
+        kernel_size=1,
+        corner_dim=64,
         num_points=9,
         gradient_mul=0.1,
         point_strides=[8, 16, 32, 64, 128],
@@ -41,11 +46,27 @@ model = dict(
             loss_weight=1.0),
         loss_bbox_init=dict(type='SmoothL1Loss', beta=0.11, loss_weight=0.5),
         loss_bbox_refine=dict(type='SmoothL1Loss', beta=0.11, loss_weight=1.0),
-        transform_method='minmax'))
+        loss_heatmap=dict(
+            type='GaussianFocalLoss',
+            alpha=2.0,
+            gamma=4.0,
+            loss_weight=0.25),
+        loss_offset=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
+        loss_sem=dict(
+            type='SEPFocalLoss',
+            gamma=2.0,
+            alpha=0.25,
+            loss_weight=0.1),
+        transform_method='exact_minmax'))
 # training and testing settings
 train_cfg = dict(
     init=dict(
         assigner=dict(type='PointAssignerV2', scale=4, pos_num=1),
+        allowed_border=-1,
+        pos_weight=-1,
+        debug=False),
+    heatmap=dict(
+        assigner=dict(type='PointHMAssigner', gaussian_bump=True, gaussian_iou=0.7),
         allowed_border=-1,
         pos_weight=-1,
         debug=False),
@@ -62,3 +83,17 @@ test_cfg = dict(
     max_per_img=100)
 optimizer = dict(lr=0.01)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2), _delete_=True)
+img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+train_pipeline = [
+    dict(type='MultiChannelLoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='MultiChannelResize', img_scale=(1333, 800), keep_ratio=True),
+    dict(type='MultiChannelRandomFlip', flip_ratio=0.5),
+    dict(type='MultiChannelNormalize', **img_norm_cfg),
+    dict(type='MultiChannelPad', size_divisor=32),
+    dict(type='LoadRPDV2Annotations', num_classes=80),
+    dict(type='MultiChannelRPDV2FormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_sem_map', 'gt_sem_weights']),
+]
+data_root = 'data/bdd100k/'
+data = dict(train=dict(pipeline=train_pipeline))
