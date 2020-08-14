@@ -87,7 +87,7 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='MultiChannelResize', img_scale=(1333, 800), keep_ratio=True),
     dict(type='MultiChannelRandomFlip', flip_ratio=0.5),
-    dict(type='Normalize', **img_norm_cfg),
+    dict(type='MultiChannelNormalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
     dict(type='LoadRPDV2Annotations', num_classes=80),
     dict(type='RPDV2FormatBundle'),

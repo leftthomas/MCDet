@@ -1,7 +1,7 @@
 import mmcv
 import numpy as np
 
-from .transforms import Resize, RandomFlip
+from .transforms import Resize, RandomFlip, Normalize
 from ..builder import PIPELINES
 
 try:
@@ -79,4 +79,18 @@ class MultiChannelRandomFlip(RandomFlip):
             for key in results.get('seg_fields', []):
                 results[key] = mmcv.imflip(
                     results[key], direction=results['flip_direction'])
+        return results
+
+
+@PIPELINES.register_module()
+class MultiChannelNormalize(Normalize):
+
+    def __call__(self, results):
+        for key in results.get('img_fields', ['img']):
+            images, img_num = [], results[key].shape[-1]
+            for index in range(img_num):
+                images.append(mmcv.imnormalize(results[key][:, :, :, index], self.mean, self.std, self.to_rgb))
+            results[key] = np.stack(images, axis=-1)
+        results['img_norm_cfg'] = dict(
+            mean=self.mean, std=self.std, to_rgb=self.to_rgb)
         return results
