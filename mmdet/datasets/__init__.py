@@ -1,3 +1,4 @@
+from .bdd100k import BDD100KDataset
 from .builder import DATASETS, PIPELINES, build_dataloader, build_dataset
 from .cityscapes import CityscapesDataset
 from .coco import CocoDataset
@@ -18,5 +19,5 @@ __all__ = [
     'CityscapesDataset', 'LVISDataset', 'DeepFashionDataset', 'GroupSampler',
     'DistributedGroupSampler', 'DistributedSampler', 'build_dataloader',
     'ConcatDataset', 'RepeatDataset', 'ClassBalancedDataset',
-    'WIDERFaceDataset', 'DATASETS', 'PIPELINES', 'build_dataset'
+    'WIDERFaceDataset', 'DATASETS', 'PIPELINES', 'build_dataset', 'BDD100KDataset'
 ]
