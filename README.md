@@ -14,5 +14,6 @@
 * `RandomFlip`--->`MultiChannelRandomFlip`;
 * `Normalize`--->`MultiChannelNormalize`;
 * `Pad`--->`MultiChannelPad`;
+* `RPDV2FormatBundle`--->`MultiChannelRPDV2FormatBundle`;
 
 6.修改原有config下的配置文件,修改数据路径`data_root`;

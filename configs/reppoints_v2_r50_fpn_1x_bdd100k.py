@@ -90,7 +90,7 @@ train_pipeline = [
     dict(type='MultiChannelNormalize', **img_norm_cfg),
     dict(type='MultiChannelPad', size_divisor=32),
     dict(type='LoadRPDV2Annotations', num_classes=80),
-    dict(type='RPDV2FormatBundle'),
+    dict(type='MultiChannelRPDV2FormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_sem_map', 'gt_sem_weights']),
 ]
 data_root = 'data/bdd100k/'
